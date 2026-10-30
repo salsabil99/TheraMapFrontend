@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { OutlineButton, PrimaryButton } from '../components/Button';
 import { MailHeartIcon, RefreshIcon, ShieldIcon } from '../components/icons';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { comingSoon } from '../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -30,10 +29,10 @@ export default function VerifyEmailScreen() {
 
   const handleVerified = () => {
     setChecking(true);
-    // TODO: ask the API whether the email is verified, then enter the app.
+    // TODO: ask the API whether the email is verified before continuing.
     setTimeout(() => {
       setChecking(false);
-      comingSoon('Home');
+      router.replace('/onboarding');
     }, 800);
   };
 

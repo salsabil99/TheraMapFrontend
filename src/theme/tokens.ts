@@ -7,6 +7,7 @@ export const colors = {
   surface: '#FFFFFF',
   surfaceMuted: '#DCE8EA', // segmented track, subtle fills
   border: '#DCE6E8',
+  borderStrong: '#BFCFD2',
 
   // Brand
   petrol: '#12343B',
@@ -22,9 +23,12 @@ export const colors = {
 
   // Pastel accents
   pink: '#F6D5E3',
+  pinkStrong: '#D98AA5',
   lavender: '#DCD5F6',
   lavenderSoft: '#F4F1FD',
+  lavenderStrong: '#6A57C2',
   paleGreen: '#E3F0D2',
+  greenStrong: '#9DBF86',
   skyBlue: '#D3E8F2',
 
   // Feedback
@@ -51,6 +55,7 @@ export const spacing = {
 
 export const fonts = {
   regular: 'Inter_400Regular',
+  italic: 'Inter_400Regular_Italic',
   medium: 'Inter_500Medium',
   semibold: 'Inter_600SemiBold',
   bold: 'Inter_700Bold',
