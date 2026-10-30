@@ -61,11 +61,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Absolutely centred so it stays in the middle regardless of the badge width.
+  // Takes the space between the back button and badge, so a wide badge never overlaps it.
   brand: {
-    position: 'absolute',
-    left: 56,
-    right: 56,
+    flex: 1,
+    marginHorizontal: spacing.sm,
     textAlign: 'center',
     fontFamily: fonts.bold,
     fontSize: 17,

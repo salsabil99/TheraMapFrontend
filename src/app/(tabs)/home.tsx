@@ -32,11 +32,12 @@ import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
 type CardId = 'emotion' | 'thought' | 'cbt';
 
-const EMOTIONS = [
-  { label: 'Calm', icon: <LeafIcon size={15} color={colors.greenText} strokeWidth={2} /> },
-  { label: 'Anxious', icon: <BoltIcon size={15} color={colors.pinkStrong} strokeWidth={2} /> },
-  { label: 'Sad', icon: <CloudIcon size={15} color={colors.skyStrong} strokeWidth={2} /> },
-  { label: 'Hopeful', icon: <SunIcon size={15} color={colors.amber} strokeWidth={2} /> },
+// `logId` is the matching option in the Emotion Logger; "Other" opens it unselected.
+const EMOTIONS: { label: string; logId?: string; icon: ReactNode }[] = [
+  { label: 'Calm', logId: 'Content', icon: <LeafIcon size={15} color={colors.greenText} strokeWidth={2} /> },
+  { label: 'Anxious', logId: 'Anxious', icon: <BoltIcon size={15} color={colors.pinkStrong} strokeWidth={2} /> },
+  { label: 'Sad', logId: 'Sad', icon: <CloudIcon size={15} color={colors.skyStrong} strokeWidth={2} /> },
+  { label: 'Hopeful', logId: 'Hopeful', icon: <SunIcon size={15} color={colors.amber} strokeWidth={2} /> },
   { label: 'Other', icon: <DotsIcon size={15} color={colors.textSecondary} /> },
 ];
 
@@ -82,7 +83,10 @@ export default function HomeScreen() {
             <PrimaryButton
               title="Start"
               layout="spread"
-              onPress={() => comingSoon(emotion ? `Log emotion: ${emotion}` : 'Log emotion')}
+              onPress={() => {
+                const logId = EMOTIONS.find((e) => e.label === emotion)?.logId;
+                router.push({ pathname: '/log-emotion', params: logId ? { emotion: logId } : {} });
+              }}
             />
           </ExpandableCard>
 

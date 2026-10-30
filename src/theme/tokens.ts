@@ -37,6 +37,11 @@ export const colors = {
   skyStrong: '#5E93BF',
   skySoft: '#EAF4F8',
   amber: '#D99A2B',
+  amberSoft: '#FDF6E7',
+  amberText: '#8A5A00',
+  coral: '#E07A5F',
+  coralSoft: '#FCEFEA',
+  coralText: '#A8452B',
 
   // Feedback
   danger: '#B4474F',
