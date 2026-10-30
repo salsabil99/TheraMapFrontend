@@ -35,6 +35,7 @@ export const colors = {
   greenText: '#4A6A2C',
   skyBlue: '#D3E8F2',
   skyStrong: '#5E93BF',
+  skySoft: '#EAF4F8',
   amber: '#D99A2B',
 
   // Feedback

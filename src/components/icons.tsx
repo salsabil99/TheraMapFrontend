@@ -356,3 +356,33 @@ export function DotsIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function ChatIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M4 12a8 8 0 1 1 3.5 6.6L4 20l1.3-3.6A8 8 0 0 1 4 12Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function HeartIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M12 20s-7.5-4.4-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3c0 5.6-7.5 10-7.5 10Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function ShareIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Circle cx={18} cy={5.5} r={2.5} {...stroke} />
+      <Circle cx={6} cy={12} r={2.5} {...stroke} />
+      <Circle cx={18} cy={18.5} r={2.5} {...stroke} />
+      <Path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1" {...stroke} />
+    </Svg>
+  );
+}

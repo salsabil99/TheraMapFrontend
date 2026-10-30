@@ -12,6 +12,7 @@ import {
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandBar } from '../components/BrandBar';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { HeroCard } from '../components/HeroCard';
 import {
@@ -19,7 +20,6 @@ import {
   FolderPlusIcon,
   GoogleIcon,
   LockIcon,
-  LogoIcon,
   MailIcon,
   ShieldIcon,
   UserIcon,
@@ -27,7 +27,7 @@ import {
 import { SegmentedControl } from '../components/SegmentedControl';
 import { TextField } from '../components/TextField';
 import { comingSoon } from '../lib/comingSoon';
-import { colors, fonts, radius, spacing, type } from '../theme/tokens';
+import { colors, spacing, type } from '../theme/tokens';
 
 type Role = 'client' | 'provider';
 
@@ -64,16 +64,8 @@ export default function SignInScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Top bar */}
           <View style={styles.topBar}>
-            <View style={styles.brand}>
-              <LogoIcon size={20} />
-              <Text style={styles.brandText}>theramap</Text>
-            </View>
-            <View style={styles.privatePill}>
-              <LockIcon size={12} color={colors.textSecondary} />
-              <Text style={styles.privatePillText}>Your private map</Text>
-            </View>
+            <BrandBar />
           </View>
 
           <HeroCard
@@ -180,34 +172,7 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
   },
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: spacing.xs,
-  },
-  brand: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  brandText: {
-    fontFamily: fonts.bold,
-    fontSize: 18,
-    letterSpacing: -0.3,
-    color: colors.textPrimary,
-  },
-  privatePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-  },
-  privatePillText: {
-    ...type.caption,
-    color: colors.textSecondary,
   },
   form: {
     gap: spacing.lg,

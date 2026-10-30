@@ -2,7 +2,7 @@ import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BookIcon, ClipboardCheckIcon, HomeIcon, SettingsIcon } from '../../components/icons';
+import { BookIcon, SettingsIcon, SunIcon, ToolsIcon } from '../../components/icons';
 import { TabButton, tabBarStyles } from '../../components/TabBar';
 import { colors, spacing } from '../../theme/tokens';
 
@@ -15,13 +15,13 @@ export default function TabsLayout() {
       <TabSlot style={styles.slot} />
       <TabList style={[tabBarStyles.bar, { marginBottom: insets.bottom + spacing.sm }]}>
         <TabTrigger name="home" href="/home" asChild>
-          <TabButton label="Home" icon={(c) => <HomeIcon size={20} color={c} />} />
+          <TabButton label="Today" icon={(c) => <SunIcon size={20} color={c} />} />
         </TabTrigger>
         <TabTrigger name="journal" href="/journal" asChild>
           <TabButton label="Journal" icon={(c) => <BookIcon size={20} color={c} />} />
         </TabTrigger>
-        <TabTrigger name="tasks" href="/tasks" asChild>
-          <TabButton label="Tasks" icon={(c) => <ClipboardCheckIcon size={20} color={c} />} />
+        <TabTrigger name="tools" href="/tools" asChild>
+          <TabButton label="Tools" icon={(c) => <ToolsIcon size={20} color={c} />} />
         </TabTrigger>
         <TabTrigger name="settings" href="/settings" asChild>
           <TabButton label="Settings" icon={(c) => <SettingsIcon size={20} color={c} />} />

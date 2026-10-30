@@ -168,7 +168,7 @@ export default function HomeScreen() {
             subtitle="Helpful resources"
             tone={colors.skyBlue}
             icon={<ToolsIcon size={18} color={colors.skyStrong} />}
-            onPress={() => comingSoon('Tools')}
+            href="/tools"
           />
           <Shortcut
             title="Settings"

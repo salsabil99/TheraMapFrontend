@@ -22,11 +22,18 @@ type Props = {
   opacity?: number;
   leftFill?: string;
   rightFill?: string;
+  strokeColor?: string;
 };
 
-export function Brain({ width, opacity = 1, leftFill = '#DED9F8', rightFill = '#CEE9F5' }: Props) {
+export function Brain({
+  width,
+  opacity = 1,
+  leftFill = '#DED9F8',
+  rightFill = '#CEE9F5',
+  strokeColor = colors.petrol,
+}: Props) {
   const stroke = {
-    stroke: colors.petrol,
+    stroke: strokeColor,
     strokeWidth: 7.2,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
