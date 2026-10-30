@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { PrimaryButton } from '../components/Button';
 import { ThoughtMap } from '../components/illustrations/ThoughtMap';
@@ -54,15 +53,6 @@ export default function OnboardingScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
-          <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
-            <Defs>
-              <LinearGradient id="heroFill" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={colors.surface} />
-                <Stop offset="1" stopColor={colors.lavenderSoft} />
-              </LinearGradient>
-            </Defs>
-            <Rect width="100%" height="100%" fill="url(#heroFill)" />
-          </Svg>
           {slide.illustration}
         </View>
 
@@ -143,11 +133,7 @@ const styles = StyleSheet.create({
     gap: spacing.xxl,
   },
   hero: {
-    height: 240,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.lavender,
-    overflow: 'hidden',
+    paddingVertical: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
