@@ -196,3 +196,163 @@ export function MailHeartIcon({ size = 40 }: { size?: number }) {
     </Svg>
   );
 }
+
+export function ChevronRightIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="m9 5 7 7-7 7" {...stroke} />
+    </Svg>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="m5 9 7 7 7-7" {...stroke} />
+    </Svg>
+  );
+}
+
+export function HomeIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5H15v-6H9v6H5.5A1.5 1.5 0 0 1 4 19v-8.5Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function BookIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5Z" {...stroke} />
+      <Path d="M12 6.5v13" {...stroke} />
+    </Svg>
+  );
+}
+
+export function ClipboardCheckIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Rect x={5} y={4.5} width={14} height={16} rx={2.5} {...stroke} />
+      <Path d="M9 4.5V3.5h6v1M9 13l2 2 4-4" {...stroke} />
+    </Svg>
+  );
+}
+
+export function SettingsIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Circle cx={12} cy={12} r={3} {...stroke} />
+      <Path
+        d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
+        {...stroke}
+      />
+    </Svg>
+  );
+}
+
+export function ToolsIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Rect x={4} y={4} width={7} height={7} rx={2} {...stroke} />
+      <Rect x={13} y={4} width={7} height={7} rx={2} {...stroke} />
+      <Rect x={4} y={13} width={7} height={7} rx={2} {...stroke} />
+      <Circle cx={16.5} cy={16.5} r={3.5} {...stroke} />
+    </Svg>
+  );
+}
+
+export function PhoneIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M5 4h3.5l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5V19a1.5 1.5 0 0 1-1.5 1.5A15.5 15.5 0 0 1 3.5 5.5 1.5 1.5 0 0 1 5 4Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function ClockIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Circle cx={12} cy={12} r={8.5} {...stroke} />
+      <Path d="M12 7.5V12l3 2" {...stroke} />
+    </Svg>
+  );
+}
+
+export function SproutIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M12 21v-9" {...stroke} />
+      <Path d="M12 12C12 7.5 9 5 4.5 5c0 4.5 3 7 7.5 7ZM12 10c0-3.5 2.5-6 7.5-6 0 4-2.5 6-7.5 6Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function ReframeIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M4 9h13l-3.5-3.5M20 15H7l3.5 3.5" {...stroke} />
+    </Svg>
+  );
+}
+
+export function LeafIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M5 19C5 10 10 5 19 5c0 9-5 14-14 14Z" {...stroke} />
+      <Path d="M5 19 13 11" {...stroke} />
+    </Svg>
+  );
+}
+
+export function BoltIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M13 3 5 13.5h6L10 21l8-10.5h-6L13 3Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function CloudIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M7 18.5a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5 3.75 3.75 0 0 1-.5 7.5H7Z" {...stroke} />
+    </Svg>
+  );
+}
+
+export function SunIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Circle cx={12} cy={12} r={4} {...stroke} />
+      <Path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" {...stroke} />
+    </Svg>
+  );
+}
+
+export function DotsIcon(props: IconProps) {
+  const { svg } = base(props);
+  const fill = props.color ?? colors.textPrimary;
+  return (
+    <Svg {...svg}>
+      <Circle cx={6} cy={12} r={1.6} fill={fill} />
+      <Circle cx={12} cy={12} r={1.6} fill={fill} />
+      <Circle cx={18} cy={12} r={1.6} fill={fill} />
+    </Svg>
+  );
+}

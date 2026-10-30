@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -74,7 +75,8 @@ export default function OnboardingScreen() {
 
   const handleNext = () => {
     if (index < SLIDES.length - 1) setIndex(index + 1);
-    else comingSoon(`Onboarding step ${index + 2}`);
+    // TODO: steps beyond the built slides; for now the last built slide enters the app.
+    else router.replace('/home');
   };
 
   return (

@@ -10,9 +10,21 @@ type PrimaryProps = {
   loading?: boolean;
   disabled?: boolean;
   showArrow?: boolean;
+  // 'spread' puts the label left and the arrow right (card "Start" recipe).
+  layout?: 'center' | 'spread';
+  // Smaller, content-width pill for inline actions.
+  compact?: boolean;
 };
 
-export function PrimaryButton({ title, onPress, loading, disabled, showArrow = true }: PrimaryProps) {
+export function PrimaryButton({
+  title,
+  onPress,
+  loading,
+  disabled,
+  showArrow = true,
+  layout = 'center',
+  compact,
+}: PrimaryProps) {
   const inactive = disabled || loading;
   return (
     <Pressable
@@ -22,6 +34,8 @@ export function PrimaryButton({ title, onPress, loading, disabled, showArrow = t
       accessibilityState={{ disabled: inactive, busy: loading }}
       style={({ pressed }) => [
         styles.primary,
+        layout === 'spread' && styles.spread,
+        compact && styles.compact,
         pressed && { backgroundColor: colors.petrolPressed },
         disabled && styles.disabled,
       ]}
@@ -29,8 +43,8 @@ export function PrimaryButton({ title, onPress, loading, disabled, showArrow = t
       {loading ? (
         <ActivityIndicator color={colors.textOnPetrol} />
       ) : (
-        <View style={styles.row}>
-          <Text style={styles.primaryText}>{title}</Text>
+        <View style={[styles.row, layout === 'spread' && styles.rowSpread]}>
+          <Text style={[styles.primaryText, compact && styles.compactText]}>{title}</Text>
           {showArrow && <ArrowRightIcon size={18} color={colors.textOnPetrol} strokeWidth={2} />}
         </View>
       )}
@@ -91,6 +105,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...shadow.card,
+  },
+  spread: {
+    alignItems: 'stretch',
+    paddingHorizontal: spacing.xl,
+  },
+  rowSpread: {
+    justifyContent: 'space-between',
+  },
+  compact: {
+    height: 40,
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.lg,
+  },
+  compactText: {
+    fontSize: 14,
   },
   primaryText: {
     ...type.button,
