@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   outline: {
-    height: 46,
+    height: 52,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,

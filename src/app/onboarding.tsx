@@ -2,7 +2,9 @@ import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PrimaryButton } from '../components/Button';
+import { OutlineButton, PrimaryButton } from '../components/Button';
+import { ChevronLeftIcon } from '../components/icons';
+import { PrivacyShield } from '../components/illustrations/PrivacyShield';
 import { ThoughtMap } from '../components/illustrations/ThoughtMap';
 import { comingSoon } from '../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
@@ -10,8 +12,15 @@ import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 // Total onboarding steps in the flow. Only the slides defined below are built so far.
 const TOTAL_STEPS = 4;
 
+// Pastel tone for each slide's tag pill.
+const ACCENTS = {
+  lavender: { background: colors.lavenderSoft, border: colors.lavender, text: colors.lavenderStrong },
+  green: { background: colors.greenSoft, border: colors.paleGreen, text: colors.greenText },
+} as const;
+
 type Slide = {
   tag: string;
+  accent: keyof typeof ACCENTS;
   title: string;
   // Body copy as segments so individual phrases can be italicised.
   body: { text: string; italic?: boolean }[];
@@ -21,6 +30,7 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     tag: 'Visual CBT',
+    accent: 'lavender',
     title: 'Map your mind visually',
     body: [
       { text: 'Cognitive behavioral therapy made tangible. Unravel complex feelings by seeing how thoughts like ' },
@@ -31,11 +41,23 @@ const SLIDES: Slide[] = [
     ],
     illustration: <ThoughtMap />,
   },
+  {
+    tag: 'Strict Privacy',
+    accent: 'green',
+    title: 'Private by default. Always.',
+    body: [
+      {
+        text: 'Your vulnerability deserves absolute sanctity. Every record is stored with zero-knowledge encryption. No one—not even your therapist—can read your entries unless you explicitly choose to share them.',
+      },
+    ],
+    illustration: <PrivacyShield />,
+  },
 ];
 
 export default function OnboardingScreen() {
   const [index, setIndex] = useState(0);
   const slide = SLIDES[index];
+  const accent = ACCENTS[slide.accent];
 
   const handleNext = () => {
     if (index < SLIDES.length - 1) setIndex(index + 1);
@@ -57,8 +79,8 @@ export default function OnboardingScreen() {
         </View>
 
         <View style={styles.text}>
-          <View style={styles.tag}>
-            <Text style={styles.tagText}>{slide.tag}</Text>
+          <View style={[styles.tag, { backgroundColor: accent.background, borderColor: accent.border }]}>
+            <Text style={[styles.tagText, { color: accent.text }]}>{slide.tag}</Text>
           </View>
           <Text style={styles.title} accessibilityRole="header">
             {slide.title}
@@ -74,7 +96,18 @@ export default function OnboardingScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <PrimaryButton title={index === TOTAL_STEPS - 1 ? 'Get started' : 'Next'} onPress={handleNext} />
+        {index > 0 && (
+          <View style={styles.back}>
+            <OutlineButton
+              title="Back"
+              icon={<ChevronLeftIcon size={16} strokeWidth={2} />}
+              onPress={() => setIndex(index - 1)}
+            />
+          </View>
+        )}
+        <View style={styles.next}>
+          <PrimaryButton title={index === TOTAL_STEPS - 1 ? 'Get started' : 'Next'} onPress={handleNext} />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -132,8 +165,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
     gap: spacing.xxl,
   },
+  // Fixed height so the text below doesn't jump between slides.
   hero: {
-    paddingVertical: spacing.sm,
+    height: 200,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -146,13 +180,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.lavender,
-    backgroundColor: colors.lavenderSoft,
   },
   tagText: {
     ...type.caption,
     fontFamily: fonts.medium,
-    color: colors.lavenderStrong,
   },
   title: {
     ...type.title,
@@ -168,8 +199,17 @@ const styles = StyleSheet.create({
     fontFamily: fonts.italic,
   },
   footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
+  },
+  back: {
+    width: 104,
+  },
+  next: {
+    flex: 1,
   },
 });

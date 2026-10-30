@@ -29,6 +29,8 @@ export const colors = {
   lavenderStrong: '#6A57C2',
   paleGreen: '#E3F0D2',
   greenStrong: '#9DBF86',
+  greenSoft: '#F3F8EA',
+  greenText: '#4A6A2C',
   skyBlue: '#D3E8F2',
 
   // Feedback
