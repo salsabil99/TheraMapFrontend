@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { OutlineButton, PrimaryButton } from '../components/Button';
 import { ChevronLeftIcon } from '../components/icons';
 import { PrivacyShield } from '../components/illustrations/PrivacyShield';
+import { SessionBridge } from '../components/illustrations/SessionBridge';
 import { ThoughtMap } from '../components/illustrations/ThoughtMap';
 import { comingSoon } from '../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
@@ -16,6 +17,7 @@ const TOTAL_STEPS = 4;
 const ACCENTS = {
   lavender: { background: colors.lavenderSoft, border: colors.lavender, text: colors.lavenderStrong },
   green: { background: colors.greenSoft, border: colors.paleGreen, text: colors.greenText },
+  pink: { background: colors.pinkSoft, border: colors.pink, text: colors.pinkText },
 } as const;
 
 type Slide = {
@@ -51,6 +53,17 @@ const SLIDES: Slide[] = [
       },
     ],
     illustration: <PrivacyShield />,
+  },
+  {
+    tag: 'Collaborative Support',
+    accent: 'pink',
+    title: 'Bridge your sessions',
+    body: [
+      {
+        text: 'Bring deeper clarity into your therapy appointments. Share high-level emotion patterns or specific thought logs with your clinician in a single tap to make sessions richer.',
+      },
+    ],
+    illustration: <SessionBridge />,
   },
 ];
 

@@ -24,6 +24,8 @@ export const colors = {
   // Pastel accents
   pink: '#F6D5E3',
   pinkStrong: '#D98AA5',
+  pinkSoft: '#FDF1F5',
+  pinkText: '#A23B62',
   lavender: '#DCD5F6',
   lavenderSoft: '#F4F1FD',
   lavenderStrong: '#6A57C2',
