@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
@@ -6,11 +7,14 @@ import { ChevronLeftIcon } from './icons';
 
 type Props = {
   onBack?: () => void;
+  // Centre text; defaults to the wordmark.
+  title?: string;
   // Shown as a pill on the right, e.g. "Step 1 of 2".
   badge?: string;
+  badgeIcon?: ReactNode;
 };
 
-export function ScreenHeader({ onBack, badge }: Props) {
+export function ScreenHeader({ onBack, title = 'theramap', badge, badgeIcon }: Props) {
   const handleBack = onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/sign-in')));
 
   return (
@@ -25,9 +29,18 @@ export function ScreenHeader({ onBack, badge }: Props) {
         <ChevronLeftIcon size={18} strokeWidth={2} />
       </Pressable>
 
-      <Text style={styles.brand}>theramap</Text>
+      <Text style={styles.brand} accessibilityRole="header" numberOfLines={1}>
+        {title}
+      </Text>
 
-      <View style={styles.side}>{!!badge && <Text style={styles.badge}>{badge}</Text>}</View>
+      <View style={styles.side}>
+        {!!badge && (
+          <View style={styles.badge}>
+            {badgeIcon}
+            <Text style={styles.badgeText}>{badge}</Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -48,24 +61,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Absolutely centred so it stays in the middle regardless of the badge width.
   brand: {
+    position: 'absolute',
+    left: 56,
+    right: 56,
+    textAlign: 'center',
     fontFamily: fonts.bold,
     fontSize: 17,
     letterSpacing: -0.3,
     color: colors.textPrimary,
   },
-  // Fixed width keeps the brand centred whether or not a badge is shown.
   side: {
     minWidth: 40,
     alignItems: 'flex-end',
   },
   badge: {
-    ...type.caption,
-    color: colors.textSecondary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     paddingHorizontal: spacing.md,
     paddingVertical: 5,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
-    overflow: 'hidden',
+  },
+  badgeText: {
+    ...type.caption,
+    color: colors.textSecondary,
   },
 });

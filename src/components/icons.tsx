@@ -167,3 +167,32 @@ export function CheckIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function RefreshIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M20 11a8 8 0 0 0-14.3-4.9L4 8" {...stroke} />
+      <Path d="M4 4v4h4" {...stroke} />
+      <Path d="M4 13a8 8 0 0 0 14.3 4.9L20 16" {...stroke} />
+      <Path d="M20 20v-4h-4" {...stroke} />
+    </Svg>
+  );
+}
+
+// Envelope with a pastel heart — verification illustration.
+export function MailHeartIcon({ size = 40 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <Rect x={5} y={9} width={30} height={22} rx={4} stroke={colors.petrol} strokeWidth={2} />
+      <Path d="m6.5 11 13.5 10 13.5-10" stroke={colors.petrol} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <Path
+        d="M20 29c-3.6-2.4-5.5-4.3-5.5-6.4 0-1.6 1.2-2.8 2.7-2.8.9 0 1.9.5 2.8 1.6.9-1.1 1.9-1.6 2.8-1.6 1.5 0 2.7 1.2 2.7 2.8 0 2.1-1.9 4-5.5 6.4Z"
+        fill={colors.pink}
+        stroke={colors.petrol}
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}

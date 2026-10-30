@@ -59,6 +59,24 @@ export function SecondaryButton({ title, icon, onPress }: SecondaryProps) {
   );
 }
 
+// Low-emphasis pill with an outline, for secondary actions like "Resend".
+export function OutlineButton({ title, icon, onPress, disabled }: SecondaryProps & { disabled?: boolean }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [styles.outline, pressed && { backgroundColor: colors.surface }, disabled && styles.disabled]}
+    >
+      <View style={styles.row}>
+        {icon}
+        <Text style={styles.secondaryText}>{title}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
@@ -86,6 +104,14 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: radius.md,
     backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  outline: {
+    height: 46,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',

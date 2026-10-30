@@ -18,7 +18,6 @@ import { LockIcon, MailIcon, UserIcon } from '../components/icons';
 import { isStrongPassword, PasswordRequirements } from '../components/PasswordRequirements';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { TextField } from '../components/TextField';
-import { comingSoon } from '../lib/comingSoon';
 import { colors, spacing, type } from '../theme/tokens';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,10 +55,10 @@ export default function CreateAccountScreen() {
     if (Object.values(next).some(Boolean)) return;
 
     setLoading(true);
-    // TODO: create the account, then go to step 2 (verification).
+    // TODO: replace with the real sign-up call, which sends the verification email.
     setTimeout(() => {
       setLoading(false);
-      comingSoon('Verification');
+      router.push({ pathname: '/verify-email', params: { email: email.trim() } });
     }, 800);
   };
 

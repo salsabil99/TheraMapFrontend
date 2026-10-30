@@ -23,6 +23,7 @@ export const colors = {
   // Pastel accents
   pink: '#F6D5E3',
   lavender: '#DCD5F6',
+  lavenderSoft: '#F4F1FD',
   paleGreen: '#E3F0D2',
   skyBlue: '#D3E8F2',
 
