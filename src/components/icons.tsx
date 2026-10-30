@@ -149,3 +149,21 @@ export function MindIcon({ size = 28 }: { size?: number }) {
     </Svg>
   );
 }
+
+export function ChevronLeftIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="m15 5-7 7 7 7" {...stroke} />
+    </Svg>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="m5 12.5 4.5 4.5L19 7.5" {...stroke} />
+    </Svg>
+  );
+}

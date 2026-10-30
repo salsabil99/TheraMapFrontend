@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -10,6 +9,7 @@ import {
   View,
   type TextInputInstance,
 } from 'react-native';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton, SecondaryButton } from '../components/Button';
@@ -26,16 +26,12 @@ import {
 } from '../components/icons';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { TextField } from '../components/TextField';
+import { comingSoon } from '../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 
 type Role = 'client' | 'provider';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Placeholder until the auth API and the next screens exist.
-function comingSoon(what: string) {
-  Alert.alert(what, 'This screen is coming next.');
-}
 
 export default function SignInScreen() {
   const [role, setRole] = useState<Role>('client');
@@ -154,7 +150,7 @@ export default function SignInScreen() {
 
           <View style={styles.signupRow}>
             <Text style={styles.signupText}>Don't have an account? </Text>
-            <Pressable onPress={() => comingSoon('Create account')} hitSlop={8} accessibilityRole="link">
+            <Pressable onPress={() => router.push('/create-account')} hitSlop={8} accessibilityRole="link">
               <Text style={styles.signupLink}>Create account</Text>
             </Pressable>
           </View>

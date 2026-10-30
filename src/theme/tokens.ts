@@ -28,6 +28,7 @@ export const colors = {
 
   // Feedback
   danger: '#B4474F',
+  success: '#2F7D4F',
 } as const;
 
 export const radius = {
