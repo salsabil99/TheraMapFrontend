@@ -18,7 +18,6 @@ export const colors = {
   accent: '#935165', // selected accents and notification badges
   accentSoft: '#F3E6EA',
   tealSoft: '#DCEBEC', // icon circles, quiet fills
-  tealLight: '#9FD8D3', // highlighted words on petrol
 
   // Text
   textPrimary: '#12343B',
@@ -44,7 +43,6 @@ export const colors = {
   skySoft: '#EAF4F8',
   amber: '#D99A2B',
   amberSoft: '#FDF6E7',
-  amberLight: '#F7E2B0',
   amberText: '#8A5A00',
   coral: '#E07A5F',
   coralSoft: '#FCEFEA',
