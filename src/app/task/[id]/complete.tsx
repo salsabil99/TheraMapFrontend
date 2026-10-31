@@ -7,19 +7,13 @@ import { PrimaryButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
 import { CheckIcon } from '../../../components/icons';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { partOfDay } from '../../../lib/time';
 import { useTasks } from '../../../state/TasksContext';
 import { colors, fonts, radius, spacing, type } from '../../../theme/tokens';
 
 const FEELINGS = ['Much calmer', 'A bit calmer', 'About the same', 'More tense'];
 const CALMER = new Set(['Much calmer', 'A bit calmer']);
 const SEGMENTS = 10;
-
-function partOfDay(date = new Date()) {
-  const h = date.getHours();
-  if (h < 12) return 'morning';
-  if (h < 18) return 'afternoon';
-  return 'evening';
-}
 
 export default function CompleteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

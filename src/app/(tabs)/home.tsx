@@ -1,131 +1,92 @@
-import { router, type Href } from 'expo-router';
-import { useState, type ReactNode } from 'react';
-import { LayoutAnimation, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import type { ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PrimaryButton } from '../../components/Button';
-import { Chip } from '../../components/Chip';
-import { ExpandableCard } from '../../components/ExpandableCard';
 import {
-  ArrowRightIcon,
   BoltIcon,
-  BookIcon,
   ChevronRightIcon,
-  ClipboardCheckIcon,
-  ClockIcon,
   CloudIcon,
-  DotsIcon,
-  HeartIcon,
-  LeafIcon,
   LockIcon,
   PhoneIcon,
   ReframeIcon,
-  SettingsIcon,
+  SparkleIcon,
   SproutIcon,
   SunIcon,
 } from '../../components/icons';
-import { Brain } from '../../components/illustrations/Brain';
 import { SectionHeader } from '../../components/SectionHeader';
+import { TaskCard } from '../../components/TaskCard';
 import { currentUser, journalEntryCount, recentEntries, type JournalEntry } from '../../data/mock';
-import type { Task } from '../../data/tasks';
-import { useTasks } from '../../state/TasksContext';
 import { comingSoon } from '../../lib/comingSoon';
+import { emotionColor, emotionTint } from '../../lib/emotions';
+import { partOfDay } from '../../lib/time';
+import { useTasks } from '../../state/TasksContext';
 import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
-type CardId = 'emotion' | 'thought' | 'cbt';
-
-// `logId` is the matching option in the Emotion Logger; "Other" opens it unselected.
-const EMOTIONS: { label: string; logId?: string; icon: ReactNode }[] = [
-  { label: 'Calm', logId: 'Content', icon: <LeafIcon size={15} color={colors.greenText} strokeWidth={2} /> },
-  { label: 'Anxious', logId: 'Anxious', icon: <BoltIcon size={15} color={colors.pinkStrong} strokeWidth={2} /> },
-  { label: 'Sad', logId: 'Sad', icon: <CloudIcon size={15} color={colors.skyStrong} strokeWidth={2} /> },
-  { label: 'Hopeful', logId: 'Hopeful', icon: <SunIcon size={15} color={colors.amber} strokeWidth={2} /> },
-  { label: 'Other', icon: <DotsIcon size={15} color={colors.textSecondary} /> },
+// One-tap moods. `logId` is the option pre-selected in the Emotion Logger.
+const MOODS: { label: string; logId: string; icon: (color: string) => ReactNode }[] = [
+  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={18} color={c} strokeWidth={2} /> },
+  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={18} color={c} strokeWidth={2} /> },
+  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={18} color={c} strokeWidth={2} /> },
+  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={18} color={c} strokeWidth={2} /> },
 ];
 
-const CBT_STEPS = ['Situation', 'Thought', 'Reframe'];
-
-export default function HomeScreen() {
-  // Only one card is expanded at a time; the others keep their closed anatomy.
-  const [openCard, setOpenCard] = useState<CardId | null>('emotion');
-  const [emotion, setEmotion] = useState<string | null>(null);
+export default function TodayScreen() {
   const homework = useTasks().tasks.filter((t) => t.status !== 'done');
-
-  const toggle = (id: CardId) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setOpenCard((current) => (current === id ? null : id));
-  };
+  const latestEntry = recentEntries[0];
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Greeting name={currentUser.name} />
 
-        {/* Today */}
-        <View style={styles.cards}>
-          <ExpandableCard
-            title="Log current emotion"
-            subtitle="Take a moment to check in."
-            tone={colors.pink}
-            glyph={<Brain width={44} />}
-            open={openCard === 'emotion'}
-            onToggle={() => toggle('emotion')}
-          >
-            <Text style={styles.prompt}>What are you noticing right now?</Text>
-            <View style={styles.chips} accessibilityRole="radiogroup">
-              {EMOTIONS.map((e) => (
-                <Chip
-                  key={e.label}
-                  label={e.label}
-                  icon={e.icon}
-                  selected={emotion === e.label}
-                  onPress={() => setEmotion(emotion === e.label ? null : e.label)}
-                />
-              ))}
-            </View>
-            <PrimaryButton
-              title="Start"
-              layout="spread"
-              onPress={() => {
-                const logId = EMOTIONS.find((e) => e.label === emotion)?.logId;
-                router.push({ pathname: '/log-emotion', params: logId ? { emotion: logId } : {} });
-              }}
+        {/* Check-in */}
+        <View style={styles.checkIn}>
+          <Text style={styles.eyebrow}>A moment for you</Text>
+          <Text style={styles.checkInTitle} accessibilityRole="header">
+            Check in with yourself.
+          </Text>
+          <Text style={styles.checkInBody}>There’s no right or wrong way to feel.</Text>
+          <View style={styles.moods}>
+            {MOODS.map((m) => (
+              <Pressable
+                key={m.label}
+                onPress={() => router.push({ pathname: '/log-emotion', params: { emotion: m.logId } })}
+                accessibilityRole="button"
+                accessibilityLabel={`I feel ${m.label.toLowerCase()}`}
+                accessibilityHint="Opens the emotion logger"
+                style={({ pressed }) => [
+                  styles.mood,
+                  { backgroundColor: emotionTint(m.logId) },
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                {m.icon(emotionColor(m.logId))}
+                <Text style={styles.moodLabel}>{m.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Your space */}
+        <View style={styles.section}>
+          <SectionHeader title="Your space" />
+          <View style={styles.spaceRow}>
+            <SpaceCard
+              title="Write a thought"
+              subtitle="Capture what’s on your mind"
+              tone={colors.paleGreen}
+              icon={<SproutIcon size={18} color={colors.greenText} strokeWidth={2} />}
+              onPress={() => comingSoon('Write a thought')}
             />
-          </ExpandableCard>
-
-          <ExpandableCard
-            title="Log a thought"
-            subtitle="What’s on your mind?"
-            tone={colors.paleGreen}
-            glyph={<GlyphCircle icon={<SproutIcon size={22} color={colors.greenText} />} />}
-            open={openCard === 'thought'}
-            onToggle={() => toggle('thought')}
-          >
-            <Text style={styles.description}>Map your thoughts, spot patterns and reframe.</Text>
-            <PrimaryButton title="Start" layout="spread" onPress={() => comingSoon('Log a thought')} />
-          </ExpandableCard>
-
-          <ExpandableCard
-            title="New CBT thought record"
-            subtitle="Situation, thought, reframe."
-            tone={colors.lavender}
-            glyph={<GlyphCircle icon={<ReframeIcon size={22} color={colors.lavenderStrong} />} />}
-            open={openCard === 'cbt'}
-            onToggle={() => toggle('cbt')}
-          >
-            <Text style={styles.description}>
-              Map an automatic thought, spot cognitive distortions, and write a rational reframe.
-            </Text>
-            <View style={styles.steps}>
-              {CBT_STEPS.map((step, i) => (
-                <View key={step} style={styles.stepItem}>
-                  {i > 0 && <ArrowRightIcon size={14} color={colors.textSecondary} />}
-                  <Chip label={step} />
-                </View>
-              ))}
-            </View>
-            <PrimaryButton title="Start" layout="spread" onPress={() => comingSoon('CBT thought record')} />
-          </ExpandableCard>
+            <SpaceCard
+              title="CBT thought record"
+              subtitle="Explore and reframe a thought"
+              tone={colors.lavender}
+              icon={<ReframeIcon size={18} color={colors.lavenderStrong} strokeWidth={2} />}
+              onPress={() => comingSoon('CBT thought record')}
+            />
+          </View>
         </View>
 
         {/* Homework */}
@@ -133,62 +94,32 @@ export default function HomeScreen() {
           <SectionHeader
             title="Assigned homework"
             badge={homework.length > 0 ? `${homework.length} pending` : undefined}
+            action={homework.length > 0 ? { title: 'See all', onPress: () => router.push('/tasks') } : undefined}
           />
           {homework.length > 0 ? (
-            homework.map((hw) => <HomeworkCard key={hw.id} task={hw} />)
+            homework.map((t) => <TaskCard key={t.id} task={t} />)
           ) : (
-            <EmptyCard text="No homework right now. Your therapist’s tasks will appear here." />
+            <View style={styles.empty}>
+              <Text style={styles.emptyTitle}>No tasks assigned right now.</Text>
+              <Text style={styles.muted}>Your therapist’s activities will appear here.</Text>
+            </View>
           )}
         </View>
 
-        {/* Recent entries */}
+        {/* Reflections */}
         <View style={styles.section}>
           <SectionHeader
-            title="Recent entries"
+            title="Recent reflections"
             action={{ title: `View all (${journalEntryCount})`, onPress: () => router.push('/journal') }}
           />
-          {recentEntries.length > 0 ? (
-            recentEntries.map((entry) => <EntryCard key={entry.id} entry={entry} />)
+          {latestEntry ? (
+            <EntryCard entry={latestEntry} />
           ) : (
-            <EmptyCard text="Your journal entries will appear here." />
+            <View style={styles.empty}>
+              <Text style={styles.emptyTitle}>No reflections yet.</Text>
+              <Text style={styles.muted}>Your check-ins and thoughts will appear here.</Text>
+            </View>
           )}
-        </View>
-
-        {/* Shortcuts */}
-        <View style={styles.grid}>
-          <Shortcut
-            title="Journal"
-            subtitle="Write & process"
-            tone={colors.paleGreen}
-            icon={<BookIcon size={18} color={colors.greenText} />}
-            href="/journal"
-          />
-          <Shortcut
-            title="Tasks"
-            subtitle="From your therapist"
-            tone={colors.lavender}
-            icon={<ClipboardCheckIcon size={18} color={colors.lavenderStrong} />}
-            href="/tasks"
-          />
-          <Shortcut
-            title="Check in"
-            subtitle="Log how you feel"
-            tone={colors.skyBlue}
-            icon={<HeartIcon size={18} color={colors.skyStrong} />}
-            href="/log-emotion"
-          />
-          <Shortcut
-            title="Settings"
-            subtitle="Your preferences"
-            tone={colors.pink}
-            icon={<SettingsIcon size={18} color={colors.pinkText} />}
-            href="/settings"
-          />
-        </View>
-
-        <View style={styles.quote}>
-          <SproutIcon size={20} color={colors.greenText} />
-          <Text style={styles.quoteText}>“Progress, not perfection.”</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -203,9 +134,9 @@ function Greeting({ name }: { name: string }) {
       </View>
       <View style={styles.greetingText}>
         <Text style={styles.hello} accessibilityRole="header">
-          Hello, {name}
+          Good {partOfDay()}, {name}
         </Text>
-        <Text style={styles.helloSub}>A softer space for today</Text>
+        <Text style={styles.muted}>How are you feeling today?</Text>
       </View>
       <Pressable
         onPress={() => router.push('/crisis')}
@@ -215,78 +146,58 @@ function Greeting({ name }: { name: string }) {
         hitSlop={6}
         style={({ pressed }) => [styles.crisis, pressed && { opacity: 0.8 }]}
       >
-        <PhoneIcon size={15} color={colors.pinkText} strokeWidth={2} />
+        <PhoneIcon size={14} color={colors.pinkText} strokeWidth={2} />
         <Text style={styles.crisisText}>Crisis</Text>
       </Pressable>
     </View>
   );
 }
 
-function GlyphCircle({ icon }: { icon: ReactNode }) {
-  return <View style={styles.glyphCircle}>{icon}</View>;
-}
+type SpaceCardProps = {
+  title: string;
+  subtitle: string;
+  tone: string;
+  icon: ReactNode;
+  onPress: () => void;
+};
 
-function HomeworkCard({ task: hw }: { task: Task }) {
+function SpaceCard({ title, subtitle, tone, icon, onPress }: SpaceCardProps) {
   return (
-    <View style={styles.surfaceCard}>
-      <View style={styles.hwTop}>
-        {hw.priority === 'highest' && (
-          <View style={styles.priority}>
-            <Text style={styles.priorityText}>Highest priority</Text>
-          </View>
-        )}
-        <View style={styles.due}>
-          <ClockIcon size={13} color={colors.textSecondary} />
-          <Text style={styles.meta}>{hw.due}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.cardTitle}>{hw.title}</Text>
-
-      <View style={styles.assigned}>
-        <View style={styles.initials}>
-          <Text style={styles.initialsText}>{hw.assignedBy.initials}</Text>
-        </View>
-        <Text style={styles.meta}>Assigned by {hw.assignedBy.name}</Text>
-      </View>
-
-      <Text style={styles.cardBody}>
-        {hw.description.map((seg, i) => (
-          <Text key={i} style={seg.bold && styles.bold}>
-            {seg.text}
-          </Text>
-        ))}
-      </Text>
-
-      <PrimaryButton
-        title={hw.status === 'in_progress' ? 'Continue task' : 'Start task'}
-        compact
-        onPress={() => router.push(`/task/${hw.id}`)}
-      />
-    </View>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}. ${subtitle}`}
+      style={({ pressed }) => [styles.spaceCard, pressed && { opacity: 0.85 }]}
+    >
+      <View style={[styles.spaceIcon, { backgroundColor: tone }]}>{icon}</View>
+      <Text style={styles.spaceTitle}>{title}</Text>
+      <Text style={styles.muted}>{subtitle}</Text>
+    </Pressable>
   );
 }
 
 function EntryCard({ entry }: { entry: JournalEntry }) {
+  const [day] = entry.date.split(' ');
   return (
     <Pressable
       onPress={() => comingSoon(entry.title)}
       accessibilityRole="button"
-      style={({ pressed }) => [styles.surfaceCard, styles.entry, pressed && { opacity: 0.85 }]}
+      accessibilityLabel={`${entry.date}, ${entry.title}`}
+      style={({ pressed }) => [styles.entry, pressed && { opacity: 0.85 }]}
     >
-      <View style={styles.date}>
-        <Text style={styles.dateText}>{entry.date}</Text>
+      <View style={[styles.date, { backgroundColor: emotionTint(entry.emotion.label) }]}>
+        <Text style={styles.dateText}>{day}</Text>
       </View>
       <View style={styles.entryBody}>
         <View style={styles.entryMeta}>
-          <BoltIcon size={13} color={colors.pinkStrong} strokeWidth={2} />
-          <Text style={styles.meta} numberOfLines={1}>
-            {entry.emotion.label} · {entry.emotion.intensity}/10
+          <BoltIcon size={13} color={emotionColor(entry.emotion.label)} strokeWidth={2} />
+          <Text style={styles.muted} numberOfLines={1}>
+            {entry.date} · {entry.emotion.label}
             {entry.thought ? ` · ${entry.thought}` : ''}
           </Text>
         </View>
-        <Text style={styles.cardTitle}>{entry.title}</Text>
-        <Text style={styles.cardBody} numberOfLines={2}>
+        <Text style={styles.entryTitle}>{entry.title}</Text>
+        <Text style={styles.entryPreview} numberOfLines={2}>
           {entry.preview}
         </Text>
         <View style={styles.entryFooter}>
@@ -301,39 +212,6 @@ function EntryCard({ entry }: { entry: JournalEntry }) {
   );
 }
 
-type ShortcutProps = {
-  title: string;
-  subtitle: string;
-  tone: string;
-  icon: ReactNode;
-  href?: Href;
-  onPress?: () => void;
-};
-
-function Shortcut({ title, subtitle, tone, icon, href, onPress }: ShortcutProps) {
-  return (
-    <Pressable
-      onPress={onPress ?? (() => href && router.push(href))}
-      accessibilityRole="button"
-      style={({ pressed }) => [styles.shortcut, pressed && { opacity: 0.85 }]}
-    >
-      <View style={[styles.shortcutIcon, { backgroundColor: tone }]}>{icon}</View>
-      <View style={styles.shortcutText}>
-        <Text style={styles.shortcutTitle}>{title}</Text>
-        <Text style={styles.meta}>{subtitle}</Text>
-      </View>
-    </Pressable>
-  );
-}
-
-function EmptyCard({ text }: { text: string }) {
-  return (
-    <View style={[styles.surfaceCard, styles.empty]}>
-      <Text style={styles.cardBody}>{text}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -345,6 +223,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.xxl,
   },
+  muted: {
+    ...type.caption,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.textSecondary,
+  },
 
   // Greeting
   greeting: {
@@ -353,8 +237,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   avatar: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: radius.pill,
     backgroundColor: colors.paleGreen,
     alignItems: 'center',
@@ -362,7 +246,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontFamily: fonts.semibold,
-    fontSize: 18,
+    fontSize: 17,
     color: colors.textPrimary,
   },
   greetingText: {
@@ -370,18 +254,14 @@ const styles = StyleSheet.create({
   },
   hello: {
     ...type.heading,
+    fontSize: 19,
     color: colors.textPrimary,
-  },
-  helloSub: {
-    ...type.caption,
-    fontSize: 13,
-    color: colors.textSecondary,
   },
   crisis: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    height: 36,
+    gap: 5,
+    height: 34,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     borderWidth: 1,
@@ -393,144 +273,113 @@ const styles = StyleSheet.create({
     color: colors.pinkText,
   },
 
-  // Today cards
-  cards: {
-    gap: spacing.md,
+  // Check-in
+  checkIn: {
+    gap: spacing.sm,
+    padding: spacing.xl,
+    borderRadius: radius.lg,
+    backgroundColor: colors.pink,
   },
-  prompt: {
-    ...type.label,
-    fontSize: 14,
-    lineHeight: 20,
+  eyebrow: {
+    ...type.overline,
+    textTransform: 'uppercase',
+    color: colors.pinkText,
+  },
+  checkInTitle: {
+    ...type.title,
+    fontSize: 28,
+    lineHeight: 34,
     color: colors.textPrimary,
   },
-  description: {
+  checkInBody: {
     ...type.body,
     fontSize: 14,
-    lineHeight: 20,
-    color: colors.textPrimary,
+    color: colors.textSecondary,
   },
-  chips: {
+  moods: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.sm,
+    marginTop: spacing.sm,
   },
-  steps: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  stepItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  glyphCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
+  mood: {
+    flex: 1,
+    minHeight: 64,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.surface,
+  },
+  moodLabel: {
+    ...type.label,
+    color: colors.textPrimary,
   },
 
   // Sections
   section: {
     gap: spacing.md,
   },
-  surfaceCard: {
+  spaceRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  spaceCard: {
+    flex: 1,
+    gap: spacing.xs,
     padding: spacing.lg,
-    gap: spacing.sm,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  empty: {
-    alignItems: 'center',
-  },
-  cardTitle: {
-    ...type.button,
-    fontSize: 16,
-    lineHeight: 21,
-    color: colors.textPrimary,
-  },
-  cardBody: {
-    ...type.body,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textSecondary,
-  },
-  bold: {
-    fontFamily: fonts.semibold,
-    color: colors.textPrimary,
-  },
-  meta: {
-    ...type.caption,
-    color: colors.textSecondary,
-    flexShrink: 1,
-  },
-
-  // Homework
-  hwTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  priority: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    backgroundColor: colors.pinkSoft,
-  },
-  priorityText: {
-    fontFamily: fonts.semibold,
-    fontSize: 11,
-    letterSpacing: 0.3,
-    color: colors.pinkText,
-  },
-  due: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  assigned: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  initials: {
-    width: 26,
-    height: 26,
-    borderRadius: radius.pill,
-    backgroundColor: colors.paleGreen,
+  spaceIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.xs,
   },
-  initialsText: {
-    fontFamily: fonts.semibold,
-    fontSize: 10,
-    color: colors.greenText,
+  spaceTitle: {
+    ...type.button,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+  empty: {
+    gap: 2,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceMuted,
+  },
+  emptyTitle: {
+    ...type.label,
+    fontSize: 14,
+    color: colors.textPrimary,
   },
 
-  // Entries
+  // Entry
   entry: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   date: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    backgroundColor: colors.lavenderSoft,
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dateText: {
-    ...type.label,
-    fontSize: 12,
-    color: colors.lavenderStrong,
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    color: colors.textPrimary,
   },
   entryBody: {
     flex: 1,
@@ -540,6 +389,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  entryTitle: {
+    ...type.button,
+    fontSize: 16,
+    color: colors.textPrimary,
+  },
+  entryPreview: {
+    ...type.body,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.textSecondary,
   },
   entryFooter: {
     flexDirection: 'row',
@@ -559,55 +419,6 @@ const styles = StyleSheet.create({
   privacyText: {
     fontFamily: fonts.medium,
     fontSize: 11,
-    color: colors.textSecondary,
-  },
-
-  // Shortcuts
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  shortcut: {
-    flexBasis: '47%',
-    flexGrow: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  shortcutIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shortcutText: {
-    flex: 1,
-  },
-  shortcutTitle: {
-    ...type.label,
-    fontSize: 14,
-    color: colors.textPrimary,
-  },
-
-  // Quote
-  quote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.greenSoft,
-  },
-  quoteText: {
-    fontFamily: fonts.italic,
-    fontSize: 14,
     color: colors.textSecondary,
   },
 });
