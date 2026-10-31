@@ -28,13 +28,18 @@ import { partOfDay } from '../../lib/time';
 import { useTasks } from '../../state/TasksContext';
 import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
+const MOOD_ICON = 19;
+const BRAIN_MARK = 48;
+const BRAIN_INSET = 8; // from the card's top and right edges
+const BRAIN_GAP = 14; // breathing room between the mark and the headline
+
 // One-tap moods. `logId` is the option pre-selected in the Emotion Logger.
 // Nothing is shown as selected here: a mood is only recorded after the user chooses it.
 const MOODS: { label: string; logId: string; icon: (color: string) => ReactNode }[] = [
-  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={24} color={c} /> },
-  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={24} color={c} /> },
-  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={24} color={c} /> },
-  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={24} color={c} /> },
+  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={MOOD_ICON} color={c} /> },
+  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={MOOD_ICON} color={c} /> },
+  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={MOOD_ICON} color={c} /> },
+  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={MOOD_ICON} color={c} /> },
 ];
 
 const DUE_ORDER = { today: 0, tomorrow: 1, later: 2 } as const;
@@ -62,7 +67,7 @@ export default function TodayScreen() {
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
           >
-            <BrainMark size={46} />
+            <BrainMark size={BRAIN_MARK} />
           </View>
           <View style={styles.eyebrowRow}>
             <Text style={styles.eyebrow}>A moment for you</Text>
@@ -455,8 +460,8 @@ const styles = StyleSheet.create({
   // Sits beside the eyebrow and title without adding height.
   brainMark: {
     position: 'absolute',
-    top: spacing.sm + 2,
-    right: spacing.md,
+    top: BRAIN_INSET,
+    right: BRAIN_INSET,
   },
   eyebrowRow: {
     flexDirection: 'row',
@@ -477,9 +482,10 @@ const styles = StyleSheet.create({
   // Right padding keeps the title clear of the brain mark; it wraps on narrow phones.
   checkInTitle: {
     ...type.title,
-    fontSize: 24,
-    lineHeight: 30,
-    paddingRight: 44,
+    fontSize: 23,
+    lineHeight: 29,
+    // Card padding is spacing.xl; reserve the mark plus a clear gap.
+    paddingRight: BRAIN_MARK + BRAIN_INSET + BRAIN_GAP - spacing.xl,
     color: colors.textOnPetrol,
   },
   checkInBody: {
@@ -494,7 +500,7 @@ const styles = StyleSheet.create({
   },
   mood: {
     flex: 1,
-    minHeight: 66,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
@@ -511,6 +517,7 @@ const styles = StyleSheet.create({
   moodLabel: {
     ...type.label,
     fontSize: 14,
+    lineHeight: 18,
     color: colors.textPrimary,
   },
 
