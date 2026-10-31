@@ -19,6 +19,7 @@ export type Task = {
   beforeYouBegin: string;
   assignedBy: { name: string; initials: string };
   due: string;
+  dueDay?: 'today' | 'tomorrow' | 'later'; // drives ordering and emphasis on Today
   reminder?: string; // e.g. "Evening reminder · 20:00"
   priority?: 'highest';
   // The emotion the check-in compares against, from the client's last log.
@@ -39,6 +40,7 @@ export const initialTasks: Task[] = [
     beforeYouBegin: 'Find a comfortable position. Breathe gently, without forcing. You can pause or stop at any time.',
     assignedBy: { name: 'Dr. Elena Vance (LCSW)', initials: 'EV' },
     due: 'Today, 8:00 PM',
+    dueDay: 'today',
     reminder: 'Evening reminder · 8:00 PM',
     baseline: { emotion: 'Anxiety', intensity: 7, when: 'this morning' },
     status: 'todo',
@@ -59,6 +61,7 @@ export const initialTasks: Task[] = [
       'Pick a quiet moment. Write the thought as it came to you, then ask what a friend would say. There are no wrong answers.',
     assignedBy: { name: 'Dr. Elena Vance (LCSW)', initials: 'EV' },
     due: 'Tomorrow, 5:00 PM',
+    dueDay: 'tomorrow',
     priority: 'highest',
     baseline: { emotion: 'Anxiety', intensity: 6, when: 'on Monday' },
     status: 'todo',

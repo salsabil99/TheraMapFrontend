@@ -36,8 +36,14 @@ const MOODS: { label: string; logId: string; icon: (color: string) => ReactNode 
   { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={24} color={c} /> },
 ];
 
+const DUE_ORDER = { today: 0, tomorrow: 1, later: 2 } as const;
+
 export default function TodayScreen() {
-  const homework = useTasks().tasks.filter((t) => t.status !== 'done');
+  const homework = useTasks()
+    .tasks.filter((t) => t.status !== 'done')
+    .sort((a, b) => DUE_ORDER[a.dueDay ?? 'later'] - DUE_ORDER[b.dueDay ?? 'later']);
+  const dueToday = homework.filter((t) => t.dueDay === 'today');
+  const upNext = homework.filter((t) => t.dueDay !== 'today');
   const latestEntry = recentEntries[0];
 
   return (
@@ -94,6 +100,19 @@ export default function TodayScreen() {
               onPress={() => comingSoon('CBT thought record')}
             />
           </View>
+          <Pressable
+            onPress={() => router.push('/therapists')}
+            accessibilityRole="button"
+            accessibilityLabel="Find a therapist. Browse verified clinicians"
+            style={({ pressed }) => [styles.findRow, pressed && { opacity: 0.85 }]}
+          >
+            <View style={[styles.iconCircle, styles.iconCircleXs]}>
+              <SearchIcon size={18} color={colors.petrol} />
+            </View>
+            <Text style={[styles.cardTitle, styles.flex]}>Find a therapist</Text>
+            <Text style={styles.muted}>Verified clinicians</Text>
+            <ChevronRightIcon size={18} color={colors.textPrimary} />
+          </Pressable>
         </View>
 
         {/* Homework */}
@@ -104,7 +123,16 @@ export default function TodayScreen() {
             action={homework.length > 0 ? { title: 'See all', onPress: () => router.push('/tasks') } : undefined}
           />
           {homework.length > 0 ? (
-            homework.map((t) => <HomeworkCard key={t.id} task={t} />)
+            <>
+              {dueToday.length > 0 && <Text style={styles.groupLabel}>Due today</Text>}
+              {dueToday.map((t) => (
+                <HomeworkCard key={t.id} task={t} featured />
+              ))}
+              {upNext.length > 0 && <Text style={styles.groupLabel}>Up next</Text>}
+              {upNext.map((t) => (
+                <HomeworkCard key={t.id} task={t} />
+              ))}
+            </>
           ) : (
             <View style={styles.empty}>
               <Text style={styles.emptyTitle}>No tasks assigned right now.</Text>
@@ -113,26 +141,15 @@ export default function TodayScreen() {
           )}
         </View>
 
-        {/* Find a therapist */}
-        <Pressable
-          onPress={() => router.push('/therapists')}
-          accessibilityRole="button"
-          accessibilityLabel="Find a therapist. Browse verified clinicians"
-          style={({ pressed }) => [styles.findCard, pressed && { opacity: 0.85 }]}
-        >
-          <View style={styles.iconCircle}>
-            <SearchIcon size={22} color={colors.petrol} />
-          </View>
-          <View style={styles.flex}>
-            <Text style={styles.cardTitle}>Find a therapist</Text>
-            <Text style={styles.muted}>Browse verified clinicians</Text>
-          </View>
-          <ChevronRightIcon size={20} color={colors.textPrimary} />
-        </Pressable>
-
         {/* Progress */}
         <View style={styles.section}>
-          <SectionHeader title="Your progress" />
+          <View style={styles.sectionIntro}>
+            <SectionHeader title="Your progress" />
+            <Text style={styles.muted}>
+              Based on {weeklySummary.records} private check-ins and thoughts · {weeklySummary.range}. Only you can see
+              this.
+            </Text>
+          </View>
           <Pressable
             onPress={() => router.push('/journal')}
             accessibilityRole="button"
@@ -253,29 +270,38 @@ function SpaceCard({
   );
 }
 
-function HomeworkCard({ task }: { task: Task }) {
+// Compact single row. Today's task is emphasised; later ones stay quiet.
+function HomeworkCard({ task, featured }: { task: Task; featured?: boolean }) {
   const Icon = task.kind === 'breathing' ? WaveIcon : ClipboardCheckIcon;
   const action = task.status === 'in_progress' ? 'Continue' : 'Start';
+  const when = featured ? task.due.replace(/^Today,\s*/, '') : task.due;
   return (
-    <View style={styles.homework}>
-      <View style={styles.iconCircle}>
-        <Icon size={22} color={colors.petrol} />
+    <View style={[styles.homework, featured && styles.homeworkFeatured]}>
+      {featured && <View style={styles.featuredBar} />}
+      <View style={[styles.iconCircle, styles.iconCircleSm, featured && { backgroundColor: colors.surface }]}>
+        <Icon size={20} color={colors.petrol} />
       </View>
-      <View style={styles.homeworkText}>
-        <Text style={styles.cardTitle}>{task.title}</Text>
-        <Text style={styles.muted}>
-          {task.due} · {task.minutes} min
+      <View style={styles.flex}>
+        <Text style={styles.cardTitle} numberOfLines={1}>
+          {task.title}
         </Text>
-        <Pressable
+        <Text style={styles.muted} numberOfLines={1}>
+          {when} · {task.minutes} min
+        </Text>
+      </View>
+      <Pressable
         onPress={() => router.push(`/task/${task.id}`)}
         accessibilityRole="button"
-        accessibilityLabel={`${action} ${task.title}`}
-        style={({ pressed }) => [styles.continue, pressed && { backgroundColor: colors.petrolPressed }]}
+        accessibilityLabel={`${action} ${task.title}, ${task.due}`}
+        hitSlop={6}
+        style={({ pressed }) => [
+          styles.startButton,
+          featured ? styles.startSolid : styles.startOutline,
+          pressed && { opacity: 0.85 },
+        ]}
       >
-          <Text style={styles.continueText}>{action}</Text>
-          <ArrowRightIcon size={16} color={colors.textOnPetrol} strokeWidth={2} />
-        </Pressable>
-      </View>
+        <Text style={[styles.startText, featured && { color: colors.textOnPetrol }]}>{action}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -505,45 +531,76 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  findCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
   homework: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    overflow: 'hidden',
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  homeworkText: {
-    flex: 1,
-    gap: 2,
-    alignItems: 'flex-start',
+  homeworkFeatured: {
+    backgroundColor: colors.tealSoft,
+    borderColor: colors.tealSoft,
   },
-  continue: {
-    marginTop: spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    height: 40,
+  featuredBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    backgroundColor: colors.accent,
+  },
+  groupLabel: {
+    ...type.overline,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+  startButton: {
+    height: 36,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startSolid: {
     backgroundColor: colors.petrol,
   },
-  continueText: {
+  startOutline: {
+    borderWidth: 1.5,
+    borderColor: colors.petrol,
+  },
+  startText: {
     ...type.button,
     fontSize: 14,
-    color: colors.textOnPetrol,
+    color: colors.petrol,
+  },
+  iconCircleSm: {
+    width: 40,
+    height: 40,
+  },
+  iconCircleXs: {
+    width: 34,
+    height: 34,
+  },
+  findRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md + 2,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  sectionIntro: {
+    gap: spacing.xs,
   },
   empty: {
     gap: 2,
