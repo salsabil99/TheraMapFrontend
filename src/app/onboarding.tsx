@@ -10,8 +10,6 @@ import { SessionBridge } from '../components/illustrations/SessionBridge';
 import { ThoughtMap } from '../components/illustrations/ThoughtMap';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 
-// Total onboarding steps in the flow. Only the slides defined below are built so far.
-const TOTAL_STEPS = 4;
 
 // Pastel tone for each slide's tag pill.
 const ACCENTS = {
@@ -74,14 +72,14 @@ export default function OnboardingScreen() {
 
   const handleNext = () => {
     if (index < SLIDES.length - 1) setIndex(index + 1);
-    // TODO: steps beyond the built slides; for now the last built slide enters the app.
-    else router.replace('/home');
+    // Getting started ends with the privacy consent.
+    else router.push('/privacy-consent');
   };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.topBar}>
-        <ProgressDots total={TOTAL_STEPS} current={index} />
+        <ProgressDots total={SLIDES.length} current={index} />
         <Pressable onPress={() => router.push('/crisis')} hitSlop={10} accessibilityRole="link">
           <Text style={styles.skip}>Skip to Safety</Text>
         </Pressable>
@@ -120,7 +118,7 @@ export default function OnboardingScreen() {
           </View>
         )}
         <View style={styles.next}>
-          <PrimaryButton title={index === TOTAL_STEPS - 1 ? 'Get started' : 'Next'} onPress={handleNext} />
+          <PrimaryButton title="Next" onPress={handleNext} />
         </View>
       </View>
     </SafeAreaView>
