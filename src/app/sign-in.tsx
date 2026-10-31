@@ -39,6 +39,7 @@ export default function SignInScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [providerNotice, setProviderNotice] = useState(false);
   const passwordRef = useRef<TextInputInstance>(null);
 
   const handleSignIn = () => {
@@ -52,7 +53,9 @@ export default function SignInScreen() {
     // TODO: replace with the real auth call.
     setTimeout(() => {
       setLoading(false);
-      comingSoon(role === 'client' ? 'Client Space' : 'Provider Portal');
+      // TODO: real auth. Clients enter the app; the provider portal isn't designed yet.
+      if (role === 'client') router.replace('/home');
+      else setProviderNotice(true);
     }, 800);
   };
 
@@ -127,6 +130,11 @@ export default function SignInScreen() {
             onPress={handleSignIn}
             loading={loading}
           />
+          {providerNotice && role === 'provider' && (
+            <Text style={styles.notice} accessibilityLiveRegion="polite">
+              The Provider Portal is coming soon. Switch to Client Space to explore the app.
+            </Text>
+          )}
 
           {/* Divider */}
           <View style={styles.divider}>
@@ -158,6 +166,12 @@ export default function SignInScreen() {
 }
 
 const styles = StyleSheet.create({
+  notice: {
+    ...type.caption,
+    fontSize: 13,
+    textAlign: 'center',
+    color: colors.textSecondary,
+  },
   safe: {
     flex: 1,
     backgroundColor: colors.background,
