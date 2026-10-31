@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
+  ArrowRightIcon,
   BoltIcon,
   ChevronRightIcon,
   CloudIcon,
@@ -14,9 +15,10 @@ import {
   SproutIcon,
   SunIcon,
 } from '../../components/icons';
+import { Brain } from '../../components/illustrations/Brain';
 import { SectionHeader } from '../../components/SectionHeader';
 import { TaskCard } from '../../components/TaskCard';
-import { currentUser, journalEntryCount, recentEntries, type JournalEntry } from '../../data/mock';
+import { currentUser, journalEntryCount, recentEntries, weeklySummary, type JournalEntry } from '../../data/mock';
 import { comingSoon } from '../../lib/comingSoon';
 import { emotionColor, emotionTint } from '../../lib/emotions';
 import { partOfDay } from '../../lib/time';
@@ -104,6 +106,34 @@ export default function TodayScreen() {
               <Text style={styles.muted}>Your therapist’s activities will appear here.</Text>
             </View>
           )}
+        </View>
+
+        {/* Progress */}
+        <View style={styles.section}>
+          <SectionHeader title="Your progress" />
+          <Pressable
+            onPress={() => router.push('/journal')}
+            accessibilityRole="button"
+            accessibilityLabel={`Your mind this week, ${weeklySummary.records} records. Explore your mindmap`}
+            style={({ pressed }) => [styles.progress, pressed && { opacity: 0.85 }]}
+          >
+            <View style={styles.progressTop}>
+              <View style={styles.progressText}>
+                <Text style={styles.progressTitle}>Your mind this week</Text>
+                <View style={styles.records}>
+                  <Text style={styles.recordsText}>{weeklySummary.records} records</Text>
+                </View>
+              </View>
+              <Brain width={64} leftFill={colors.lavenderSoft} rightFill={colors.skySoft} />
+            </View>
+            <Text style={styles.progressBody}>
+              You’ve been exploring your thoughts and emotions. See the patterns emerging.
+            </Text>
+            <View style={styles.progressLink}>
+              <Text style={styles.progressLinkText}>Explore your mindmap</Text>
+              <ArrowRightIcon size={16} color={colors.textPrimary} strokeWidth={2} />
+            </View>
+          </Pressable>
         </View>
 
         {/* Reflections */}
@@ -353,6 +383,56 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   emptyTitle: {
+    ...type.label,
+    fontSize: 14,
+    color: colors.textPrimary,
+  },
+
+  // Progress
+  progress: {
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.lavender,
+  },
+  progressTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  progressText: {
+    flex: 1,
+    gap: spacing.sm,
+    alignItems: 'flex-start',
+  },
+  progressTitle: {
+    ...type.heading,
+    fontSize: 18,
+    color: colors.textPrimary,
+  },
+  records: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+  },
+  recordsText: {
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    color: colors.lavenderStrong,
+  },
+  progressBody: {
+    ...type.body,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.textPrimary,
+  },
+  progressLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  progressLinkText: {
     ...type.label,
     fontSize: 14,
     color: colors.textPrimary,
