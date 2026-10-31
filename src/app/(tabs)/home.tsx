@@ -94,21 +94,6 @@ export default function TodayScreen() {
               onPress={() => comingSoon('CBT thought record')}
             />
           </View>
-          <Pressable
-            onPress={() => router.push('/therapists')}
-            accessibilityRole="button"
-            accessibilityLabel="Find a therapist. Browse verified clinicians"
-            style={({ pressed }) => [styles.findCard, pressed && { opacity: 0.85 }]}
-          >
-            <View style={styles.iconCircle}>
-              <SearchIcon size={22} color={colors.petrol} />
-            </View>
-            <View style={styles.flex}>
-              <Text style={styles.cardTitle}>Find a therapist</Text>
-              <Text style={styles.muted}>Browse verified clinicians</Text>
-            </View>
-            <ChevronRightIcon size={20} color={colors.textPrimary} />
-          </Pressable>
         </View>
 
         {/* Homework */}
@@ -127,6 +112,23 @@ export default function TodayScreen() {
             </View>
           )}
         </View>
+
+        {/* Find a therapist */}
+        <Pressable
+          onPress={() => router.push('/therapists')}
+          accessibilityRole="button"
+          accessibilityLabel="Find a therapist. Browse verified clinicians"
+          style={({ pressed }) => [styles.findCard, pressed && { opacity: 0.85 }]}
+        >
+          <View style={styles.iconCircle}>
+            <SearchIcon size={22} color={colors.petrol} />
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.cardTitle}>Find a therapist</Text>
+            <Text style={styles.muted}>Browse verified clinicians</Text>
+          </View>
+          <ChevronRightIcon size={20} color={colors.textPrimary} />
+        </Pressable>
 
         {/* Progress */}
         <View style={styles.section}>
@@ -181,7 +183,13 @@ function Greeting({ name }: { name: string }) {
         <Text style={styles.avatarText}>{name.charAt(0)}</Text>
       </View>
       <View style={styles.flex}>
-        <Text style={styles.hello} accessibilityRole="header" numberOfLines={2}>
+        <Text
+          style={styles.hello}
+          accessibilityRole="header"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
           Good {partOfDay()}, {name}
         </Text>
         <Text style={styles.helloSub} numberOfLines={1}>
@@ -231,12 +239,16 @@ function SpaceCard({
       accessibilityLabel={`${title}. ${subtitle}`}
       style={({ pressed }) => [styles.spaceCard, pressed && { opacity: 0.85 }]}
     >
-      <View style={styles.iconCircle}>{icon}</View>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.muted}>{subtitle}</Text>
-      <View style={styles.roundChevron}>
-        <ChevronRightIcon size={16} color={colors.petrol} strokeWidth={2} />
+      <View style={styles.spaceTop}>
+        <View style={[styles.iconCircle, styles.iconCircleSmall]}>{icon}</View>
+        <View style={styles.roundChevron}>
+          <ChevronRightIcon size={16} color={colors.petrol} strokeWidth={2} />
+        </View>
       </View>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.muted} numberOfLines={2}>
+        {subtitle}
+      </Text>
     </Pressable>
   );
 }
@@ -312,7 +324,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxl,
-    gap: spacing.xxl,
+    gap: spacing.xl,
   },
   flex: {
     flex: 1,
@@ -392,8 +404,9 @@ const styles = StyleSheet.create({
 
   // Check-in
   checkIn: {
-    gap: spacing.sm,
-    padding: spacing.xl,
+    gap: spacing.xs + 2,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
     borderRadius: radius.lg,
     backgroundColor: colors.petrol,
     overflow: 'hidden',
@@ -421,8 +434,8 @@ const styles = StyleSheet.create({
   },
   checkInTitle: {
     ...type.title,
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 26,
+    lineHeight: 31,
     color: colors.textOnPetrol,
   },
   checkInBody: {
@@ -433,11 +446,11 @@ const styles = StyleSheet.create({
   moods: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   mood: {
     flex: 1,
-    minHeight: 76,
+    minHeight: 66,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
@@ -446,9 +459,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
+  // Shown only while pressed; nothing is pre-selected.
   moodPressed: {
-    backgroundColor: colors.teal,
-    borderColor: colors.textOnPetrol,
+    backgroundColor: colors.petrolSoft,
+    borderColor: colors.accent,
   },
   moodLabel: {
     ...type.label,
@@ -466,18 +480,24 @@ const styles = StyleSheet.create({
   },
   spaceCard: {
     flex: 1,
-    gap: spacing.xs,
-    padding: spacing.lg,
-    paddingBottom: spacing.xxxl + spacing.sm,
+    gap: 2,
+    padding: spacing.md + 2,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
+  spaceTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  iconCircleSmall: {
+    width: 40,
+    height: 40,
+  },
   roundChevron: {
-    position: 'absolute',
-    right: spacing.md,
-    bottom: spacing.md,
     width: 32,
     height: 32,
     borderRadius: radius.pill,

@@ -52,12 +52,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
     borderRadius: radius.pill,
-    backgroundColor: colors.tealSoft,
+    backgroundColor: colors.accentSoft,
   },
   badgeText: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.semibold,
     fontSize: 12,
-    color: colors.petrol,
+    color: colors.accent,
   },
   action: {
     flexDirection: 'row',

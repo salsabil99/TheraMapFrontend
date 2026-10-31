@@ -107,11 +107,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     borderWidth: 2,
     borderColor: colors.surface,
-    backgroundColor: colors.petrol,
+    backgroundColor: colors.accent,
   },
   badgeOnActive: {
     borderColor: colors.petrol,
-    backgroundColor: colors.surface,
   },
   label: {
     fontFamily: fonts.medium,
@@ -127,6 +126,6 @@ const styles = StyleSheet.create({
     height: 3,
     marginTop: 3,
     borderRadius: radius.pill,
-    backgroundColor: colors.petrol,
+    backgroundColor: colors.accent,
   },
 });
