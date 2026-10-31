@@ -14,6 +14,8 @@ export const colors = {
   petrolPressed: '#0C262B',
   petrolSoft: '#1E464E', // icon chip on petrol
   petrolHalo: 'rgba(18, 52, 59, 0.10)', // soft ring around the active tab
+  teal: '#2F6F78', // mid teal: avatars, decorative waves
+  tealSoft: '#DCEBEC', // icon circles, quiet fills
 
   // Text
   textPrimary: '#12343B',

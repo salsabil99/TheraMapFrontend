@@ -2,11 +2,12 @@ import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
 import {
   ArrowRightIcon,
-  BoltIcon,
   ChevronRightIcon,
+  ClipboardCheckIcon,
   CloudIcon,
   LockIcon,
   PhoneIcon,
@@ -15,23 +16,24 @@ import {
   SparkleIcon,
   SproutIcon,
   SunIcon,
+  WaveIcon,
 } from '../../components/icons';
 import { Brain } from '../../components/illustrations/Brain';
 import { SectionHeader } from '../../components/SectionHeader';
-import { TaskCard } from '../../components/TaskCard';
 import { currentUser, journalEntryCount, recentEntries, weeklySummary, type JournalEntry } from '../../data/mock';
+import type { Task } from '../../data/tasks';
 import { comingSoon } from '../../lib/comingSoon';
-import { emotionColor, emotionTint } from '../../lib/emotions';
 import { partOfDay } from '../../lib/time';
 import { useTasks } from '../../state/TasksContext';
 import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
 // One-tap moods. `logId` is the option pre-selected in the Emotion Logger.
+// Nothing is shown as selected here: a mood is only recorded after the user chooses it.
 const MOODS: { label: string; logId: string; icon: (color: string) => ReactNode }[] = [
-  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={18} color={c} strokeWidth={2} /> },
-  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={18} color={c} strokeWidth={2} /> },
-  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={18} color={c} strokeWidth={2} /> },
-  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={18} color={c} strokeWidth={2} /> },
+  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={24} color={c} /> },
+  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={24} color={c} /> },
+  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={24} color={c} /> },
+  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={24} color={c} /> },
 ];
 
 export default function TodayScreen() {
@@ -45,7 +47,11 @@ export default function TodayScreen() {
 
         {/* Check-in */}
         <View style={styles.checkIn}>
-          <Text style={styles.eyebrow}>A moment for you</Text>
+          <Waves />
+          <View style={styles.eyebrowRow}>
+            <Text style={styles.eyebrow}>A moment for you</Text>
+            <View style={styles.eyebrowLine} />
+          </View>
           <Text style={styles.checkInTitle} accessibilityRole="header">
             Check in with yourself.
           </Text>
@@ -58,14 +64,14 @@ export default function TodayScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`I feel ${m.label.toLowerCase()}`}
                 accessibilityHint="Opens the emotion logger"
-                style={({ pressed }) => [
-                  styles.mood,
-                  { backgroundColor: emotionTint(m.logId) },
-                  pressed && { opacity: 0.8 },
-                ]}
+                style={({ pressed }) => [styles.mood, pressed && styles.moodPressed]}
               >
-                {m.icon(emotionColor(m.logId))}
-                <Text style={styles.moodLabel}>{m.label}</Text>
+                {({ pressed }) => (
+                  <>
+                    {m.icon(pressed ? colors.textOnPetrol : colors.petrol)}
+                    <Text style={[styles.moodLabel, pressed && { color: colors.textOnPetrol }]}>{m.label}</Text>
+                  </>
+                )}
               </Pressable>
             ))}
           </View>
@@ -78,15 +84,13 @@ export default function TodayScreen() {
             <SpaceCard
               title="Write a thought"
               subtitle="Capture what’s on your mind"
-              tone={colors.paleGreen}
-              icon={<SproutIcon size={18} color={colors.greenText} strokeWidth={2} />}
+              icon={<SproutIcon size={22} color={colors.petrol} />}
               onPress={() => comingSoon('Write a thought')}
             />
             <SpaceCard
               title="CBT thought record"
               subtitle="Explore and reframe a thought"
-              tone={colors.lavender}
-              icon={<ReframeIcon size={18} color={colors.lavenderStrong} strokeWidth={2} />}
+              icon={<ReframeIcon size={22} color={colors.petrol} />}
               onPress={() => comingSoon('CBT thought record')}
             />
           </View>
@@ -96,14 +100,14 @@ export default function TodayScreen() {
             accessibilityLabel="Find a therapist. Browse verified clinicians"
             style={({ pressed }) => [styles.findCard, pressed && { opacity: 0.85 }]}
           >
-            <View style={[styles.spaceIcon, { backgroundColor: colors.skyBlue, marginBottom: 0 }]}>
-              <SearchIcon size={18} color={colors.skyStrong} strokeWidth={2} />
+            <View style={styles.iconCircle}>
+              <SearchIcon size={22} color={colors.petrol} />
             </View>
-            <View style={styles.findText}>
-              <Text style={styles.spaceTitle}>Find a therapist</Text>
+            <View style={styles.flex}>
+              <Text style={styles.cardTitle}>Find a therapist</Text>
               <Text style={styles.muted}>Browse verified clinicians</Text>
             </View>
-            <ChevronRightIcon size={18} color={colors.textSecondary} />
+            <ChevronRightIcon size={20} color={colors.textPrimary} />
           </Pressable>
         </View>
 
@@ -115,7 +119,7 @@ export default function TodayScreen() {
             action={homework.length > 0 ? { title: 'See all', onPress: () => router.push('/tasks') } : undefined}
           />
           {homework.length > 0 ? (
-            homework.map((t) => <TaskCard key={t.id} task={t} />)
+            homework.map((t) => <HomeworkCard key={t.id} task={t} />)
           ) : (
             <View style={styles.empty}>
               <Text style={styles.emptyTitle}>No tasks assigned right now.</Text>
@@ -140,14 +144,12 @@ export default function TodayScreen() {
                   <Text style={styles.recordsText}>{weeklySummary.records} records</Text>
                 </View>
               </View>
-              <Brain width={64} leftFill={colors.lavenderSoft} rightFill={colors.skySoft} />
+              <Brain width={64} leftFill={colors.surface} rightFill={colors.surface} strokeColor={colors.teal} />
             </View>
-            <Text style={styles.progressBody}>
-              You’ve been exploring your thoughts and emotions. See the patterns emerging.
-            </Text>
-            <View style={styles.progressLink}>
-              <Text style={styles.progressLinkText}>Explore your mindmap</Text>
-              <ArrowRightIcon size={16} color={colors.textPrimary} strokeWidth={2} />
+            <Text style={styles.body}>You’ve been exploring your thoughts and emotions. See the patterns emerging.</Text>
+            <View style={styles.link}>
+              <Text style={styles.linkText}>Explore your mindmap</Text>
+              <ArrowRightIcon size={16} color={colors.petrol} strokeWidth={2} />
             </View>
           </Pressable>
         </View>
@@ -178,11 +180,13 @@ function Greeting({ name }: { name: string }) {
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{name.charAt(0)}</Text>
       </View>
-      <View style={styles.greetingText}>
-        <Text style={styles.hello} accessibilityRole="header">
+      <View style={styles.flex}>
+        <Text style={styles.hello} accessibilityRole="header" numberOfLines={2}>
           Good {partOfDay()}, {name}
         </Text>
-        <Text style={styles.muted}>How are you feeling today?</Text>
+        <Text style={styles.helloSub} numberOfLines={1}>
+          How are you feeling today?
+        </Text>
       </View>
       <Pressable
         onPress={() => router.push('/crisis')}
@@ -192,22 +196,34 @@ function Greeting({ name }: { name: string }) {
         hitSlop={6}
         style={({ pressed }) => [styles.crisis, pressed && { opacity: 0.8 }]}
       >
-        <PhoneIcon size={14} color={colors.pinkText} strokeWidth={2} />
+        <PhoneIcon size={16} color={colors.pinkText} strokeWidth={2} />
         <Text style={styles.crisisText}>Crisis</Text>
       </Pressable>
     </View>
   );
 }
 
-type SpaceCardProps = {
+// Soft overlapping curves in the top-right of the check-in card.
+function Waves() {
+  return (
+    <Svg width={220} height={200} viewBox="0 0 220 200" style={styles.waves} pointerEvents="none">
+      <Path d="M220 0H120C150 40 140 90 180 130C195 145 210 150 220 152V0Z" fill={colors.teal} opacity={0.55} />
+      <Path d="M220 40C190 70 200 120 160 160C140 180 110 195 80 200H220V40Z" fill={colors.teal} opacity={0.35} />
+    </Svg>
+  );
+}
+
+function SpaceCard({
+  title,
+  subtitle,
+  icon,
+  onPress,
+}: {
   title: string;
   subtitle: string;
-  tone: string;
   icon: ReactNode;
   onPress: () => void;
-};
-
-function SpaceCard({ title, subtitle, tone, icon, onPress }: SpaceCardProps) {
+}) {
   return (
     <Pressable
       onPress={onPress}
@@ -215,10 +231,40 @@ function SpaceCard({ title, subtitle, tone, icon, onPress }: SpaceCardProps) {
       accessibilityLabel={`${title}. ${subtitle}`}
       style={({ pressed }) => [styles.spaceCard, pressed && { opacity: 0.85 }]}
     >
-      <View style={[styles.spaceIcon, { backgroundColor: tone }]}>{icon}</View>
-      <Text style={styles.spaceTitle}>{title}</Text>
+      <View style={styles.iconCircle}>{icon}</View>
+      <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.muted}>{subtitle}</Text>
+      <View style={styles.roundChevron}>
+        <ChevronRightIcon size={16} color={colors.petrol} strokeWidth={2} />
+      </View>
     </Pressable>
+  );
+}
+
+function HomeworkCard({ task }: { task: Task }) {
+  const Icon = task.kind === 'breathing' ? WaveIcon : ClipboardCheckIcon;
+  const action = task.status === 'in_progress' ? 'Continue' : 'Start';
+  return (
+    <View style={styles.homework}>
+      <View style={styles.iconCircle}>
+        <Icon size={22} color={colors.petrol} />
+      </View>
+      <View style={styles.homeworkText}>
+        <Text style={styles.cardTitle}>{task.title}</Text>
+        <Text style={styles.muted}>
+          {task.due} · {task.minutes} min
+        </Text>
+        <Pressable
+        onPress={() => router.push(`/task/${task.id}`)}
+        accessibilityRole="button"
+        accessibilityLabel={`${action} ${task.title}`}
+        style={({ pressed }) => [styles.continue, pressed && { backgroundColor: colors.petrolPressed }]}
+      >
+          <Text style={styles.continueText}>{action}</Text>
+          <ArrowRightIcon size={16} color={colors.textOnPetrol} strokeWidth={2} />
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -231,18 +277,15 @@ function EntryCard({ entry }: { entry: JournalEntry }) {
       accessibilityLabel={`${entry.date}, ${entry.title}`}
       style={({ pressed }) => [styles.entry, pressed && { opacity: 0.85 }]}
     >
-      <View style={[styles.date, { backgroundColor: emotionTint(entry.emotion.label) }]}>
+      <View style={styles.date}>
         <Text style={styles.dateText}>{day}</Text>
       </View>
-      <View style={styles.entryBody}>
-        <View style={styles.entryMeta}>
-          <BoltIcon size={13} color={emotionColor(entry.emotion.label)} strokeWidth={2} />
-          <Text style={styles.muted} numberOfLines={1}>
-            {entry.date} · {entry.emotion.label}
-            {entry.thought ? ` · ${entry.thought}` : ''}
-          </Text>
-        </View>
-        <Text style={styles.entryTitle}>{entry.title}</Text>
+      <View style={styles.flex}>
+        <Text style={styles.muted} numberOfLines={1}>
+          {entry.date} · {entry.emotion.label}
+          {entry.thought ? ` · ${entry.thought}` : ''}
+        </Text>
+        <Text style={styles.cardTitle}>{entry.title}</Text>
         <Text style={styles.entryPreview} numberOfLines={2}>
           {entry.preview}
         </Text>
@@ -258,6 +301,8 @@ function EntryCard({ entry }: { entry: JournalEntry }) {
   );
 }
 
+const ICON_CIRCLE = 48;
+
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -269,11 +314,33 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.xxl,
   },
+  flex: {
+    flex: 1,
+  },
   muted: {
     ...type.caption,
     fontSize: 13,
     lineHeight: 18,
     color: colors.textSecondary,
+  },
+  body: {
+    ...type.body,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.textPrimary,
+  },
+  cardTitle: {
+    ...type.button,
+    fontSize: 16,
+    color: colors.textPrimary,
+  },
+  iconCircle: {
+    width: ICON_CIRCLE,
+    height: ICON_CIRCLE,
+    borderRadius: radius.pill,
+    backgroundColor: colors.tealSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // Greeting
@@ -283,31 +350,34 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   avatar: {
-    width: 44,
-    height: 44,
+    width: 46,
+    height: 46,
     borderRadius: radius.pill,
-    backgroundColor: colors.paleGreen,
+    backgroundColor: colors.teal,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontFamily: fonts.semibold,
-    fontSize: 17,
-    color: colors.textPrimary,
-  },
-  greetingText: {
-    flex: 1,
+    fontSize: 20,
+    color: colors.textOnPetrol,
   },
   hello: {
     ...type.heading,
-    fontSize: 19,
+    fontSize: 18,
+    lineHeight: 23,
     color: colors.textPrimary,
+  },
+  helloSub: {
+    ...type.body,
+    fontSize: 13,
+    color: colors.textSecondary,
   },
   crisis: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    height: 34,
+    height: 38,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     borderWidth: 1,
@@ -316,6 +386,7 @@ const styles = StyleSheet.create({
   },
   crisisText: {
     ...type.label,
+    fontSize: 14,
     color: colors.pinkText,
   },
 
@@ -324,47 +395,95 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.xl,
     borderRadius: radius.lg,
-    backgroundColor: colors.pink,
+    backgroundColor: colors.petrol,
+    overflow: 'hidden',
+  },
+  waves: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  eyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
   },
   eyebrow: {
     ...type.overline,
     textTransform: 'uppercase',
-    color: colors.pinkText,
+    letterSpacing: 2,
+    color: colors.textOnPetrolMuted,
+  },
+  eyebrowLine: {
+    width: 36,
+    height: 1,
+    backgroundColor: colors.textOnPetrolMuted,
   },
   checkInTitle: {
     ...type.title,
     fontSize: 28,
     lineHeight: 34,
-    color: colors.textPrimary,
+    color: colors.textOnPetrol,
   },
   checkInBody: {
     ...type.body,
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 15,
+    color: colors.textOnPetrolMuted,
   },
   moods: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   mood: {
     flex: 1,
-    minHeight: 64,
+    minHeight: 76,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.surface,
+    gap: 6,
+    borderRadius: radius.lg,
+    backgroundColor: colors.background,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  moodPressed: {
+    backgroundColor: colors.teal,
+    borderColor: colors.textOnPetrol,
   },
   moodLabel: {
     ...type.label,
+    fontSize: 14,
     color: colors.textPrimary,
   },
 
   // Sections
   section: {
     gap: spacing.md,
+  },
+  spaceRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  spaceCard: {
+    flex: 1,
+    gap: spacing.xs,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl + spacing.sm,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  roundChevron: {
+    position: 'absolute',
+    right: spacing.md,
+    bottom: spacing.md,
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   findCard: {
     flexDirection: 'row',
@@ -376,35 +495,35 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  findText: {
-    flex: 1,
-    gap: 2,
-  },
-  spaceRow: {
+  homework: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.md,
-  },
-  spaceCard: {
-    flex: 1,
-    gap: spacing.xs,
     padding: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  spaceIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
+  homeworkText: {
+    flex: 1,
+    gap: 2,
+    alignItems: 'flex-start',
   },
-  spaceTitle: {
+  continue: {
+    marginTop: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: 40,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    backgroundColor: colors.petrol,
+  },
+  continueText: {
     ...type.button,
-    fontSize: 15,
-    color: colors.textPrimary,
+    fontSize: 14,
+    color: colors.textOnPetrol,
   },
   empty: {
     gap: 2,
@@ -423,7 +542,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    backgroundColor: colors.lavender,
+    backgroundColor: colors.tealSoft,
   },
   progressTop: {
     flexDirection: 'row',
@@ -449,23 +568,17 @@ const styles = StyleSheet.create({
   recordsText: {
     fontFamily: fonts.semibold,
     fontSize: 12,
-    color: colors.lavenderStrong,
+    color: colors.petrol,
   },
-  progressBody: {
-    ...type.body,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textPrimary,
-  },
-  progressLink: {
+  link: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
   },
-  progressLinkText: {
+  linkText: {
     ...type.label,
     fontSize: 14,
-    color: colors.textPrimary,
+    color: colors.petrol,
   },
 
   // Entry
@@ -480,29 +593,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   date: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+    width: ICON_CIRCLE,
+    height: ICON_CIRCLE,
+    borderRadius: radius.pill,
+    backgroundColor: colors.tealSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dateText: {
     fontFamily: fonts.bold,
     fontSize: 18,
-    color: colors.textPrimary,
-  },
-  entryBody: {
-    flex: 1,
-    gap: 4,
-  },
-  entryMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  entryTitle: {
-    ...type.button,
-    fontSize: 16,
     color: colors.textPrimary,
   },
   entryPreview: {

@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
-import { ChevronRightIcon } from './icons';
+import { ArrowRightIcon } from './icons';
 
 type Props = {
   title: string;
@@ -25,7 +25,7 @@ export function SectionHeader({ title, badge, action }: Props) {
       {action && (
         <Pressable onPress={action.onPress} hitSlop={8} accessibilityRole="link" style={styles.action}>
           <Text style={styles.actionText}>{action.title}</Text>
-          <ChevronRightIcon size={14} color={colors.textSecondary} strokeWidth={2} />
+          <ArrowRightIcon size={16} color={colors.petrol} strokeWidth={2} />
         </Pressable>
       )}
     </View>
@@ -52,20 +52,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
     borderRadius: radius.pill,
-    backgroundColor: colors.lavender,
+    backgroundColor: colors.tealSoft,
   },
   badgeText: {
     fontFamily: fonts.medium,
-    fontSize: 11,
-    color: colors.lavenderStrong,
+    fontSize: 12,
+    color: colors.petrol,
   },
   action: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
   },
   actionText: {
     ...type.label,
-    color: colors.textSecondary,
+    fontSize: 14,
+    color: colors.petrol,
   },
 });
