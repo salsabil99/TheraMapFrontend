@@ -1,30 +1,61 @@
-import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, View } from 'react-native';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
 
-import { colors, fonts, radius, shadow, spacing } from '../theme/tokens';
+import { colors, radius, shadow, spacing } from '../theme/tokens';
 
 // `ref` is omitted: expo-router's slot ref type doesn't match RN 0.88's View instance type.
 type TabButtonProps = Omit<TabTriggerSlotProps, 'ref'> & {
   label: string;
   icon: (color: string) => ReactNode;
+  // Small dot for something new, e.g. pending tasks.
+  badge?: boolean;
 };
 
-// Bottom navigation item: the selected destination sits in a petrol circle.
+const BAR_HEIGHT = 76;
+const CIRCLE = 52;
+const HALO = 62;
+
+// "Organic" navigation item: icon only; the selected destination grows into a
+// raised petrol circle with a soft halo. The label stays for screen readers.
 // Used as the asChild of an expo-router/ui TabTrigger, which supplies isFocused/onPress.
-export function TabButton({ label, icon, isFocused, ...props }: TabButtonProps) {
+export function TabButton({ label, icon, badge, isFocused, ...props }: TabButtonProps) {
+  const [progress] = useState(() => new Animated.Value(isFocused ? 1 : 0));
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const toValue = isFocused ? 1 : 0;
+    if (reduceMotion) {
+      progress.setValue(toValue);
+      return;
+    }
+    Animated.spring(progress, { toValue, friction: 7, tension: 90, useNativeDriver: true }).start();
+  }, [isFocused, reduceMotion, progress]);
+
+  const grow = (from: number) => ({
+    opacity: progress,
+    transform: [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [from, 1] }) }],
+  });
+
   return (
     <Pressable
       {...props}
       accessibilityRole="tab"
       accessibilityState={{ selected: isFocused }}
-      accessibilityLabel={label}
+      accessibilityLabel={badge ? `${label}, new items` : label}
       style={styles.item}
     >
-      <View style={[styles.iconWrap, isFocused && styles.iconWrapActive]}>
-        {icon(isFocused ? colors.textOnPetrol : colors.textSecondary)}
+      <Animated.View style={[styles.halo, grow(0.6)]} pointerEvents="none" />
+      <Animated.View style={[styles.circle, grow(0.5)]} pointerEvents="none" />
+      <View>
+        {icon(isFocused ? colors.textOnPetrol : colors.textPrimary)}
+        {badge && <View style={[styles.badge, isFocused && styles.badgeOnActive]} />}
       </View>
-      <Text style={[styles.label, isFocused && styles.labelActive]}>{label}</Text>
+      <Animated.View style={[styles.indicator, { opacity: progress }]} pointerEvents="none" />
     </Pressable>
   );
 }
@@ -32,11 +63,12 @@ export function TabButton({ label, icon, isFocused, ...props }: TabButtonProps) 
 export const tabBarStyles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginHorizontal: spacing.lg,
+    alignItems: 'center',
+    height: BAR_HEIGHT,
+    marginHorizontal: spacing.xl,
     marginTop: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.lg,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.pill,
     backgroundColor: colors.surface,
     ...shadow.card,
   },
@@ -45,26 +77,44 @@ export const tabBarStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   item: {
     flex: 1,
-    alignItems: 'center',
-    gap: 4,
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
+    height: BAR_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconWrapActive: {
+  halo: {
+    position: 'absolute',
+    width: HALO,
+    height: HALO,
+    borderRadius: radius.pill,
+    backgroundColor: colors.petrolHalo,
+  },
+  circle: {
+    position: 'absolute',
+    width: CIRCLE,
+    height: CIRCLE,
+    borderRadius: radius.pill,
     backgroundColor: colors.petrol,
   },
-  label: {
-    fontFamily: fonts.medium,
-    fontSize: 11,
-    color: colors.textSecondary,
+  badge: {
+    position: 'absolute',
+    top: -3,
+    right: -4,
+    width: 10,
+    height: 10,
+    borderRadius: radius.pill,
+    borderWidth: 2,
+    borderColor: colors.surface,
+    backgroundColor: colors.pinkStrong,
   },
-  labelActive: {
-    fontFamily: fonts.semibold,
-    color: colors.textPrimary,
+  badgeOnActive: {
+    borderColor: colors.petrol,
+  },
+  indicator: {
+    position: 'absolute',
+    bottom: 3,
+    width: 18,
+    height: 4,
+    borderRadius: radius.pill,
+    backgroundColor: colors.borderStrong,
   },
 });

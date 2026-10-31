@@ -13,6 +13,7 @@ export const colors = {
   petrol: '#12343B',
   petrolPressed: '#0C262B',
   petrolSoft: '#1E464E', // icon chip on petrol
+  petrolHalo: 'rgba(18, 52, 59, 0.10)', // soft ring around the active tab
 
   // Text
   textPrimary: '#12343B',
