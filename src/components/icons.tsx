@@ -416,3 +416,22 @@ export function SparkleIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function CloseIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M6 6l12 12M18 6 6 18" {...stroke} />
+    </Svg>
+  );
+}
+
+export function GlobeIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Circle cx={12} cy={12} r={8.5} {...stroke} />
+      <Path d="M3.5 12h17M12 3.5c2.5 2.5 3.5 5.5 3.5 8.5s-1 6-3.5 8.5c-2.5-2.5-3.5-5.5-3.5-8.5s1-6 3.5-8.5Z" {...stroke} />
+    </Svg>
+  );
+}

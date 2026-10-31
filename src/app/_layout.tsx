@@ -25,7 +25,10 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+        {/* Safety sheet slides over whatever screen opened it. */}
+        <Stack.Screen name="crisis" options={{ presentation: 'modal', contentStyle: { backgroundColor: colors.surface } }} />
+      </Stack>
     </>
   );
 }

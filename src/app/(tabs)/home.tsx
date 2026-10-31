@@ -205,9 +205,10 @@ function Greeting({ name }: { name: string }) {
         <Text style={styles.helloSub}>A softer space for today</Text>
       </View>
       <Pressable
-        onPress={() => comingSoon('Crisis support')}
+        onPress={() => router.push('/crisis')}
         accessibilityRole="button"
         accessibilityLabel="Crisis support"
+        accessibilityHint="Opens crisis lines and a grounding exercise"
         hitSlop={6}
         style={({ pressed }) => [styles.crisis, pressed && { opacity: 0.8 }]}
       >

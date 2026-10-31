@@ -8,7 +8,6 @@ import { ChevronLeftIcon } from '../components/icons';
 import { PrivacyShield } from '../components/illustrations/PrivacyShield';
 import { SessionBridge } from '../components/illustrations/SessionBridge';
 import { ThoughtMap } from '../components/illustrations/ThoughtMap';
-import { comingSoon } from '../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 
 // Total onboarding steps in the flow. Only the slides defined below are built so far.
@@ -83,7 +82,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.topBar}>
         <ProgressDots total={TOTAL_STEPS} current={index} />
-        <Pressable onPress={() => comingSoon('Safety')} hitSlop={10} accessibilityRole="link">
+        <Pressable onPress={() => router.push('/crisis')} hitSlop={10} accessibilityRole="link">
           <Text style={styles.skip}>Skip to Safety</Text>
         </Pressable>
       </View>
