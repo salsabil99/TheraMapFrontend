@@ -5,28 +5,30 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandBar } from '../../components/BrandBar';
 import {
   ArrowRightIcon,
-  ChatIcon,
-  CheckIcon,
+  BrainIcon,
+  CalendarIcon,
   ChevronDownIcon,
   HeartIcon,
   LockIcon,
   ShareIcon,
   ShieldIcon,
+  SparkleIcon,
 } from '../../components/icons';
 import { BrainMap } from '../../components/illustrations/BrainMap';
 import { SectionHeader } from '../../components/SectionHeader';
 import { journalEntryCount, recentEntries, weeklySummary, type JournalEntry, type ThoughtPattern } from '../../data/mock';
 import { comingSoon } from '../../lib/comingSoon';
-import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
+import { colors, fonts, radius, shadow, spacing, type } from '../../theme/tokens';
 
 const PAGE_PADDING = spacing.xl;
 const CARD_PADDING = spacing.lg;
+const MAP_CARD_PADDING = spacing.xl;
 
 const totalOf = (t: ThoughtPattern) => Object.values(t.links).reduce((a, b) => a + b, 0);
 
 export default function JournalScreen() {
   const { width: screenWidth } = useWindowDimensions();
-  const mapWidth = Math.min(screenWidth - 2 * PAGE_PADDING - 2 * CARD_PADDING, 360);
+  const mapWidth = Math.min(screenWidth - 2 * PAGE_PADDING - 2 * MAP_CARD_PADDING + 8, 380);
 
   const { thoughts, records, range, period } = weeklySummary;
   const sortedThoughts = useMemo(() => [...thoughts].sort((a, b) => totalOf(b) - totalOf(a)), [thoughts]);
@@ -60,26 +62,39 @@ export default function JournalScreen() {
             accessibilityLabel={`Period: ${period}. Change`}
             style={({ pressed }) => [styles.period, pressed && { opacity: 0.8 }]}
           >
+            <CalendarIcon size={18} color={colors.petrol} />
             <Text style={styles.periodText}>{period}</Text>
-            <ChevronDownIcon size={14} strokeWidth={2} />
+            <ChevronDownIcon size={16} strokeWidth={2} />
           </Pressable>
-          <Text style={styles.muted}>{range}</Text>
+          <Text style={styles.rangeText}>{range}</Text>
         </View>
 
         {/* Weekly brain summary */}
-        <View style={styles.card}>
+        <View style={styles.mapCard}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Weekly brain summary</Text>
-            <Text style={styles.muted}>{records} records</Text>
+            <Text style={styles.cardTitle} accessibilityRole="header">
+              Weekly brain summary
+            </Text>
+            <Text style={styles.rangeText}>{records} records</Text>
           </View>
           <View style={styles.columns}>
             <View style={styles.column}>
-              <ChatIcon size={18} />
-              <Text style={styles.columnLabel}>Thoughts</Text>
+              <View style={[styles.columnIcon, { backgroundColor: colors.lavenderSoft }]}>
+                <BrainIcon size={20} color={colors.lavenderStrong} />
+              </View>
+              <View style={styles.columnText}>
+                <Text style={styles.columnLabel}>Thoughts</Text>
+                <Text style={styles.columnHint}>Patterns in your thinking</Text>
+              </View>
             </View>
             <View style={styles.column}>
-              <HeartIcon size={18} />
-              <Text style={styles.columnLabel}>Emotions</Text>
+              <View style={[styles.columnIcon, { backgroundColor: colors.skySoft }]}>
+                <HeartIcon size={20} color={colors.skyStrong} />
+              </View>
+              <View style={styles.columnText}>
+                <Text style={styles.columnLabel}>Emotions</Text>
+                <Text style={styles.columnHint}>How you’ve been feeling</Text>
+              </View>
             </View>
           </View>
           <View style={styles.map}>
@@ -89,9 +104,13 @@ export default function JournalScreen() {
 
         {topEmotion && (
           <View style={styles.insight}>
-            <CheckIcon size={16} color={colors.lavenderStrong} strokeWidth={2.5} />
+            <View style={styles.insightIcon}>
+              <SparkleIcon size={22} color={colors.lavenderStrong} />
+            </View>
+            <View style={styles.insightDivider} />
             <Text style={styles.insightText}>
-              {topEmotion} was your most recorded emotion: {topCount} of {records} records.
+              <Text style={styles.insightStrong}>{topEmotion}</Text> was your most recorded emotion: {topCount} of{' '}
+              {records} records.
             </Text>
           </View>
         )}
@@ -241,18 +260,35 @@ const styles = StyleSheet.create({
   period: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    height: 36,
+    gap: spacing.sm,
+    height: 44,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.surface,
+    ...shadow.card,
+    shadowOpacity: 0.06,
+    elevation: 2,
   },
   periodText: {
     ...type.label,
-    fontSize: 14,
+    fontSize: 15,
+    marginRight: 2,
     color: colors.textPrimary,
+  },
+  rangeText: {
+    fontFamily: fonts.medium,
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  mapCard: {
+    paddingHorizontal: MAP_CARD_PADDING - 4,
+    paddingTop: MAP_CARD_PADDING,
+    paddingBottom: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    ...shadow.card,
+    shadowOpacity: 0.06,
+    elevation: 2,
   },
 
   card: {
@@ -268,27 +304,47 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cardTitle: {
-    ...type.button,
-    fontSize: 16,
+    ...type.title,
+    fontSize: 20,
     color: colors.textPrimary,
+    paddingHorizontal: 4,
   },
   columns: {
     flexDirection: 'row',
+    gap: spacing.sm,
     marginTop: spacing.lg,
   },
   column: {
     flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: spacing.sm,
+  },
+  columnIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  columnText: {
+    flex: 1,
+    gap: 1,
   },
   columnLabel: {
-    ...type.label,
-    fontSize: 14,
+    fontFamily: fonts.bold,
+    fontSize: 15,
     color: colors.textPrimary,
+  },
+  columnHint: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.textSecondary,
   },
   map: {
     alignItems: 'center',
-    marginTop: spacing.sm,
+    marginTop: spacing.lg,
   },
 
   insight: {
@@ -297,13 +353,30 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.lavender,
+    backgroundColor: colors.lavenderSoft,
+  },
+  insightIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.lavender,
+  },
+  insightDivider: {
+    width: 1,
+    alignSelf: 'stretch',
     backgroundColor: colors.lavender,
   },
   insightText: {
-    ...type.label,
+    ...type.body,
     flex: 1,
-    lineHeight: 19,
     color: colors.textPrimary,
+  },
+  insightStrong: {
+    fontFamily: fonts.bold,
   },
 
   stats: {

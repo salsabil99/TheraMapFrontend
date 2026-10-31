@@ -500,3 +500,24 @@ export function LogOutIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function CalendarIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Rect x={3.5} y={4.5} width={17} height={16} rx={2.5} {...stroke} />
+      <Path d="M8 2.5v4M16 2.5v4M3.5 10h17M8 14h2M14 14h2M8 17.5h2" {...stroke} />
+    </Svg>
+  );
+}
+
+export function BrainIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M12 5a3 3 0 1 0-6 .1 4 4 0 0 0-2.5 5.8 4 4 0 0 0 .6 6.6A4 4 0 1 0 12 18V5Z" {...stroke} />
+      <Path d="M12 5a3 3 0 1 1 6 .1 4 4 0 0 1 2.5 5.8 4 4 0 0 1-.6 6.6A4 4 0 1 1 12 18V5Z" {...stroke} />
+      <Path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4M3.5 10.9c.2-.2.4-.3.6-.4M20 10.5c.2.1.4.2.6.4" {...stroke} />
+    </Svg>
+  );
+}

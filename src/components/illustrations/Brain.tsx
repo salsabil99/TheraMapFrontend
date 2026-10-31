@@ -23,7 +23,16 @@ type Props = {
   leftFill?: string;
   rightFill?: string;
   strokeColor?: string;
+  // Optional per-hemisphere outline colours and weight (viewBox units).
+  leftStroke?: string;
+  rightStroke?: string;
+  strokeWidth?: number;
 };
+
+// Folds split by side so each hemisphere can carry its own outline colour.
+const FOLD_PARTS = FOLDS.split('M').filter(Boolean).map((d) => 'M' + d);
+const LEFT_FOLDS = FOLD_PARTS.filter((d) => parseFloat(d.slice(1)) < 159).join('');
+const RIGHT_FOLDS = FOLD_PARTS.filter((d) => parseFloat(d.slice(1)) >= 159).join('');
 
 export function Brain({
   width,
@@ -31,19 +40,23 @@ export function Brain({
   leftFill = '#DED9F8',
   rightFill = '#CEE9F5',
   strokeColor = colors.petrol,
+  leftStroke,
+  rightStroke,
+  strokeWidth = 7.2,
 }: Props) {
   const stroke = {
     stroke: strokeColor,
-    strokeWidth: 7.2,
+    strokeWidth,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
   };
   const { x, y, width: w, height: h } = BRAIN_VIEWBOX;
   return (
     <Svg width={width} height={width * BRAIN_ASPECT} viewBox={`${x} ${y} ${w} ${h}`} opacity={opacity}>
-      <Path d={LEFT_HEMISPHERE} fill={leftFill} {...stroke} />
-      <Path d={RIGHT_HEMISPHERE} fill={rightFill} {...stroke} />
-      <Path d={FOLDS} fill="none" {...stroke} />
+      <Path d={LEFT_HEMISPHERE} fill={leftFill} {...stroke} stroke={leftStroke ?? strokeColor} />
+      <Path d={RIGHT_HEMISPHERE} fill={rightFill} {...stroke} stroke={rightStroke ?? strokeColor} />
+      <Path d={LEFT_FOLDS} fill="none" {...stroke} stroke={leftStroke ?? strokeColor} />
+      <Path d={RIGHT_FOLDS} fill="none" {...stroke} stroke={rightStroke ?? strokeColor} />
     </Svg>
   );
 }
