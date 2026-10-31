@@ -435,3 +435,48 @@ export function GlobeIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function SearchIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Circle cx={11} cy={11} r={6.5} {...stroke} />
+      <Path d="m16 16 4 4" {...stroke} />
+    </Svg>
+  );
+}
+
+export function SlidersIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M4 7h10M18 7h2M4 17h4M12 17h8" {...stroke} />
+      <Circle cx={16} cy={7} r={2} {...stroke} />
+      <Circle cx={10} cy={17} r={2} {...stroke} />
+    </Svg>
+  );
+}
+
+export function StarIcon({ size = 14, color = colors.amber }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"
+      />
+    </Svg>
+  );
+}
+
+// Filled seal with a check, for verified clinicians.
+export function VerifiedIcon({ size = 16, color = colors.greenText }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M12 2.5 14.4 4l2.8-.2 1.1 2.6 2.5 1.4-.6 2.7 1.3 2.5-1.9 2 .1 2.8-2.7.8-1.4 2.4-2.7-.7-2.4 1.5-2.1-1.8-2.8.1-.8-2.7-2.4-1.4.7-2.7L1.7 9.5l2-1.9V4.8l2.7-.8L7.8 1.6l2.7.7L12 2.5Z"
+      />
+      <Path d="m8 12.5 2.8 2.7L16.5 9.5" stroke="#FFFFFF" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </Svg>
+  );
+}

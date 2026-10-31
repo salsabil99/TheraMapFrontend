@@ -11,6 +11,7 @@ import {
   LockIcon,
   PhoneIcon,
   ReframeIcon,
+  SearchIcon,
   SparkleIcon,
   SproutIcon,
   SunIcon,
@@ -89,6 +90,21 @@ export default function TodayScreen() {
               onPress={() => comingSoon('CBT thought record')}
             />
           </View>
+          <Pressable
+            onPress={() => router.push('/therapists')}
+            accessibilityRole="button"
+            accessibilityLabel="Find a therapist. Browse verified clinicians"
+            style={({ pressed }) => [styles.findCard, pressed && { opacity: 0.85 }]}
+          >
+            <View style={[styles.spaceIcon, { backgroundColor: colors.skyBlue, marginBottom: 0 }]}>
+              <SearchIcon size={18} color={colors.skyStrong} strokeWidth={2} />
+            </View>
+            <View style={styles.findText}>
+              <Text style={styles.spaceTitle}>Find a therapist</Text>
+              <Text style={styles.muted}>Browse verified clinicians</Text>
+            </View>
+            <ChevronRightIcon size={18} color={colors.textSecondary} />
+          </Pressable>
         </View>
 
         {/* Homework */}
@@ -349,6 +365,20 @@ const styles = StyleSheet.create({
   // Sections
   section: {
     gap: spacing.md,
+  },
+  findCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  findText: {
+    flex: 1,
+    gap: 2,
   },
   spaceRow: {
     flexDirection: 'row',
