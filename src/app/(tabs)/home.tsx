@@ -1,36 +1,32 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import {
   ArrowRightIcon,
-  BoltIcon,
   ChevronRightIcon,
-  CloudIcon,
-  LockIcon,
-  PhoneIcon,
+  ClockIcon,
+  HeartIcon,
   ReframeIcon,
-  SparkleIcon,
   SproutIcon,
-  SunIcon,
 } from '../../components/icons';
 import { Brain } from '../../components/illustrations/Brain';
-import { SectionHeader } from '../../components/SectionHeader';
-import { TaskCard } from '../../components/TaskCard';
 import { currentUser, journalEntryCount, recentEntries, weeklySummary, type JournalEntry } from '../../data/mock';
+import type { Task } from '../../data/tasks';
 import { comingSoon } from '../../lib/comingSoon';
-import { emotionColor, emotionTint } from '../../lib/emotions';
+import { emotionColor } from '../../lib/emotions';
 import { partOfDay } from '../../lib/time';
 import { useTasks } from '../../state/TasksContext';
 import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
-// One-tap moods. `logId` is the option pre-selected in the Emotion Logger.
-const MOODS: { label: string; logId: string; icon: (color: string) => ReactNode }[] = [
-  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={18} color={c} strokeWidth={2} /> },
-  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={18} color={c} strokeWidth={2} /> },
-  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={18} color={c} strokeWidth={2} /> },
-  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={18} color={c} strokeWidth={2} /> },
+// One-tap moods on a low-to-great scale. `logId` is pre-selected in the Emotion Logger.
+const MOODS = [
+  { label: 'Low', logId: 'Sad', tone: colors.pink, dot: colors.pinkStrong },
+  { label: 'Okay', logId: 'Neutral', tone: colors.lavender, dot: colors.lavenderStrong },
+  { label: 'Good', logId: 'Content', tone: colors.paleGreen, dot: colors.greenStrong },
+  { label: 'Great', logId: 'Hopeful', tone: colors.skyBlue, dot: colors.skyStrong },
 ];
 
 export default function TodayScreen() {
@@ -40,115 +36,90 @@ export default function TodayScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Greeting name={currentUser.name} />
+        <Branches />
+        <Header name={currentUser.name} />
 
-        {/* Check-in */}
-        <View style={styles.checkIn}>
-          <Text style={styles.eyebrow}>A moment for you</Text>
-          <Text style={styles.checkInTitle} accessibilityRole="header">
-            Check in with yourself.
-          </Text>
-          <Text style={styles.checkInBody}>There’s no right or wrong way to feel.</Text>
-          <View style={styles.moods}>
-            {MOODS.map((m) => (
-              <Pressable
-                key={m.label}
-                onPress={() => router.push({ pathname: '/log-emotion', params: { emotion: m.logId } })}
-                accessibilityRole="button"
-                accessibilityLabel={`I feel ${m.label.toLowerCase()}`}
-                accessibilityHint="Opens the emotion logger"
-                style={({ pressed }) => [
-                  styles.mood,
-                  { backgroundColor: emotionTint(m.logId) },
-                  pressed && { opacity: 0.8 },
-                ]}
-              >
-                {m.icon(emotionColor(m.logId))}
-                <Text style={styles.moodLabel}>{m.label}</Text>
-              </Pressable>
-            ))}
-          </View>
+        {/* Mood check-in */}
+        <View style={styles.block}>
+          <Text style={styles.overline}>How are you feeling?</Text>
+          <MoodScale />
         </View>
 
+        <Divider />
+
         {/* Your space */}
-        <View style={styles.section}>
-          <SectionHeader title="Your space" />
+        <View style={styles.block}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">
+            Your space
+          </Text>
           <View style={styles.spaceRow}>
-            <SpaceCard
+            <SpaceItem
               title="Write a thought"
               subtitle="Capture what’s on your mind"
-              tone={colors.paleGreen}
-              icon={<SproutIcon size={18} color={colors.greenText} strokeWidth={2} />}
+              icon={<SproutIcon size={22} />}
               onPress={() => comingSoon('Write a thought')}
             />
-            <SpaceCard
+            <View style={styles.vDivider} />
+            <SpaceItem
               title="CBT thought record"
               subtitle="Explore and reframe a thought"
-              tone={colors.lavender}
-              icon={<ReframeIcon size={18} color={colors.lavenderStrong} strokeWidth={2} />}
+              icon={<ReframeIcon size={22} />}
               onPress={() => comingSoon('CBT thought record')}
             />
           </View>
         </View>
 
+        <Divider />
+
         {/* Homework */}
-        <View style={styles.section}>
-          <SectionHeader
+        <View style={styles.block}>
+          <SectionTitle
             title="Assigned homework"
-            badge={homework.length > 0 ? `${homework.length} pending` : undefined}
             action={homework.length > 0 ? { title: 'See all', onPress: () => router.push('/tasks') } : undefined}
           />
           {homework.length > 0 ? (
-            homework.map((t) => <TaskCard key={t.id} task={t} />)
+            homework.map((t, i) => <TaskRow key={t.id} task={t} first={i === 0} />)
           ) : (
-            <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>No tasks assigned right now.</Text>
-              <Text style={styles.muted}>Your therapist’s activities will appear here.</Text>
-            </View>
+            <Text style={styles.muted}>No tasks assigned right now. Your therapist’s activities will appear here.</Text>
           )}
         </View>
 
+        <Divider />
+
         {/* Progress */}
-        <View style={styles.section}>
-          <SectionHeader title="Your progress" />
-          <Pressable
-            onPress={() => router.push('/journal')}
-            accessibilityRole="button"
-            accessibilityLabel={`Your mind this week, ${weeklySummary.records} records. Explore your mindmap`}
-            style={({ pressed }) => [styles.progress, pressed && { opacity: 0.85 }]}
-          >
-            <View style={styles.progressTop}>
-              <View style={styles.progressText}>
-                <Text style={styles.progressTitle}>Your mind this week</Text>
-                <View style={styles.records}>
-                  <Text style={styles.recordsText}>{weeklySummary.records} records</Text>
-                </View>
-              </View>
-              <Brain width={64} leftFill={colors.lavenderSoft} rightFill={colors.skySoft} />
+        <Pressable
+          onPress={() => router.push('/journal')}
+          accessibilityRole="button"
+          accessibilityLabel={`Your mind this week, ${weeklySummary.records} records. Explore your mindmap`}
+          style={({ pressed }) => [styles.block, pressed && { opacity: 0.8 }]}
+        >
+          <Text style={styles.overline}>Your progress</Text>
+          <View style={styles.progressRow}>
+            <View style={styles.flex}>
+              <Text style={styles.sectionTitle}>Your mind this week</Text>
+              <Text style={styles.muted}>{weeklySummary.records} records</Text>
             </View>
-            <Text style={styles.progressBody}>
-              You’ve been exploring your thoughts and emotions. See the patterns emerging.
-            </Text>
-            <View style={styles.progressLink}>
-              <Text style={styles.progressLinkText}>Explore your mindmap</Text>
-              <ArrowRightIcon size={16} color={colors.textPrimary} strokeWidth={2} />
-            </View>
-          </Pressable>
-        </View>
+            <Brain width={60} leftFill={colors.lavenderSoft} rightFill={colors.skySoft} strokeColor={colors.borderStrong} />
+          </View>
+          <Text style={styles.body}>You’ve been exploring your thoughts and emotions. See the patterns emerging.</Text>
+          <View style={styles.link}>
+            <Text style={styles.linkText}>Explore your mindmap</Text>
+            <ArrowRightIcon size={16} strokeWidth={2} />
+          </View>
+        </Pressable>
+
+        <Divider />
 
         {/* Reflections */}
-        <View style={styles.section}>
-          <SectionHeader
+        <View style={styles.block}>
+          <SectionTitle
             title="Recent reflections"
             action={{ title: `View all (${journalEntryCount})`, onPress: () => router.push('/journal') }}
           />
           {latestEntry ? (
-            <EntryCard entry={latestEntry} />
+            <EntryRow entry={latestEntry} />
           ) : (
-            <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>No reflections yet.</Text>
-              <Text style={styles.muted}>Your check-ins and thoughts will appear here.</Text>
-            </View>
+            <Text style={styles.muted}>Your check-ins and thoughts will appear here.</Text>
           )}
         </View>
       </ScrollView>
@@ -156,89 +127,199 @@ export default function TodayScreen() {
   );
 }
 
-function Greeting({ name }: { name: string }) {
+function Header({ name }: { name: string }) {
   return (
-    <View style={styles.greeting}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{name.charAt(0)}</Text>
+    <View style={styles.header}>
+      <View style={styles.headerTop}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{name.charAt(0)}</Text>
+        </View>
+        <Pressable
+          onPress={() => router.push('/crisis')}
+          accessibilityRole="button"
+          accessibilityLabel="Crisis support"
+          accessibilityHint="Opens crisis lines and a grounding exercise"
+          hitSlop={6}
+          style={({ pressed }) => [styles.crisis, pressed && { backgroundColor: colors.pinkSoft }]}
+        >
+          <HeartIcon size={16} color={colors.pinkText} strokeWidth={2} />
+          <Text style={styles.crisisText}>Crisis support</Text>
+        </Pressable>
       </View>
-      <View style={styles.greetingText}>
-        <Text style={styles.hello} accessibilityRole="header">
-          Good {partOfDay()}, {name}
-        </Text>
-        <Text style={styles.muted}>How are you feeling today?</Text>
-      </View>
-      <Pressable
-        onPress={() => router.push('/crisis')}
-        accessibilityRole="button"
-        accessibilityLabel="Crisis support"
-        accessibilityHint="Opens crisis lines and a grounding exercise"
-        hitSlop={6}
-        style={({ pressed }) => [styles.crisis, pressed && { opacity: 0.8 }]}
-      >
-        <PhoneIcon size={14} color={colors.pinkText} strokeWidth={2} />
-        <Text style={styles.crisisText}>Crisis</Text>
-      </Pressable>
+      <Text style={styles.greeting} accessibilityRole="header">
+        Good {partOfDay()}, {name}
+      </Text>
+      <Text style={styles.body}>How are you feeling today?</Text>
     </View>
   );
 }
 
-type SpaceCardProps = {
+function MoodScale() {
+  const [width, setWidth] = useState(0);
+  const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
+
+  // Dot under the centre of each pill (pills share the width equally with GAP between).
+  const GAP = spacing.sm;
+  const pill = (width - GAP * (MOODS.length - 1)) / MOODS.length;
+  const xs = MOODS.map((_, i) => i * (pill + GAP) + pill / 2);
+  const H = 20;
+  const mid = H / 2;
+  // A gentle wave from edge to edge through every dot.
+  const points = [0, ...xs, width];
+  let d = `M0 ${mid}`;
+  for (let i = 1; i < points.length; i++) {
+    const x0 = points[i - 1];
+    const x1 = points[i];
+    d += ` Q${(x0 + x1) / 2} ${i % 2 ? mid - 5 : mid + 5} ${x1} ${mid}`;
+  }
+
+  return (
+    <View onLayout={onLayout} style={styles.moodScale}>
+      <View style={styles.moods}>
+        {MOODS.map((m) => (
+          <Pressable
+            key={m.label}
+            onPress={() => router.push({ pathname: '/log-emotion', params: { emotion: m.logId } })}
+            accessibilityRole="button"
+            accessibilityLabel={`I feel ${m.label.toLowerCase()}`}
+            accessibilityHint="Opens the emotion logger"
+            style={({ pressed }) => [styles.mood, { backgroundColor: m.tone }, pressed && { opacity: 0.75 }]}
+          >
+            <Text style={styles.moodLabel}>{m.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {width > 0 && (
+        <Svg width={width} height={H} pointerEvents="none">
+          <Path d={d} stroke={colors.borderStrong} strokeWidth={1.5} fill="none" />
+          <Circle cx={3} cy={mid} r={3} fill={colors.borderStrong} />
+          <Circle cx={width - 3} cy={mid} r={3} fill={colors.borderStrong} />
+          {xs.map((x, i) => (
+            <Circle key={i} cx={x} cy={mid} r={4.5} fill={MOODS[i].dot} />
+          ))}
+        </Svg>
+      )}
+    </View>
+  );
+}
+
+function SectionTitle({ title, action }: { title: string; action?: { title: string; onPress: () => void } }) {
+  return (
+    <View style={styles.sectionHead}>
+      <Text style={styles.sectionTitle} accessibilityRole="header">
+        {title}
+      </Text>
+      {action && (
+        <Pressable onPress={action.onPress} hitSlop={8} accessibilityRole="link" style={styles.link}>
+          <Text style={styles.actionText}>{action.title}</Text>
+          <ArrowRightIcon size={14} color={colors.textSecondary} strokeWidth={2} />
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+function SpaceItem({
+  title,
+  subtitle,
+  icon,
+  onPress,
+}: {
   title: string;
   subtitle: string;
-  tone: string;
   icon: ReactNode;
   onPress: () => void;
-};
-
-function SpaceCard({ title, subtitle, tone, icon, onPress }: SpaceCardProps) {
+}) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${title}. ${subtitle}`}
-      style={({ pressed }) => [styles.spaceCard, pressed && { opacity: 0.85 }]}
+      style={({ pressed }) => [styles.spaceItem, pressed && { opacity: 0.7 }]}
     >
-      <View style={[styles.spaceIcon, { backgroundColor: tone }]}>{icon}</View>
-      <Text style={styles.spaceTitle}>{title}</Text>
-      <Text style={styles.muted}>{subtitle}</Text>
+      <View style={styles.ring}>{icon}</View>
+      <View>
+        <Text style={styles.itemTitle}>{title}</Text>
+        <Text style={styles.muted}>{subtitle}</Text>
+      </View>
     </Pressable>
   );
 }
 
-function EntryCard({ entry }: { entry: JournalEntry }) {
+const STATUS = { todo: 'New', in_progress: 'In progress', done: 'Done' } as const;
+
+function TaskRow({ task, first }: { task: Task; first: boolean }) {
+  return (
+    <Pressable
+      onPress={() => router.push(`/task/${task.id}`)}
+      accessibilityRole="button"
+      accessibilityLabel={`${task.title}, ${task.minutes} minutes, ${STATUS[task.status]}`}
+      style={({ pressed }) => [styles.row, !first && styles.rowDivider, pressed && { opacity: 0.7 }]}
+    >
+      <View style={[styles.accent, task.priority === 'highest' && { backgroundColor: colors.pinkText }]} />
+      <View style={styles.statusPill}>
+        <Text style={styles.statusText}>{STATUS[task.status]}</Text>
+      </View>
+      <View style={styles.flex}>
+        <Text style={styles.itemTitle} numberOfLines={2}>
+          {task.title}
+        </Text>
+        <View style={styles.meta}>
+          <ClockIcon size={14} color={colors.textSecondary} />
+          <Text style={styles.muted}>
+            {task.minutes} min · {task.due}
+          </Text>
+        </View>
+      </View>
+      <ChevronRightIcon size={18} color={colors.textSecondary} />
+    </Pressable>
+  );
+}
+
+function EntryRow({ entry }: { entry: JournalEntry }) {
   const [day] = entry.date.split(' ');
   return (
     <Pressable
       onPress={() => comingSoon(entry.title)}
       accessibilityRole="button"
       accessibilityLabel={`${entry.date}, ${entry.title}`}
-      style={({ pressed }) => [styles.entry, pressed && { opacity: 0.85 }]}
+      style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
     >
-      <View style={[styles.date, { backgroundColor: emotionTint(entry.emotion.label) }]}>
-        <Text style={styles.dateText}>{day}</Text>
+      <View style={[styles.ring, { borderColor: emotionColor(entry.emotion.label) }]}>
+        <Text style={styles.day}>{day}</Text>
       </View>
-      <View style={styles.entryBody}>
-        <View style={styles.entryMeta}>
-          <BoltIcon size={13} color={emotionColor(entry.emotion.label)} strokeWidth={2} />
-          <Text style={styles.muted} numberOfLines={1}>
-            {entry.date} · {entry.emotion.label}
-            {entry.thought ? ` · ${entry.thought}` : ''}
-          </Text>
-        </View>
-        <Text style={styles.entryTitle}>{entry.title}</Text>
-        <Text style={styles.entryPreview} numberOfLines={2}>
+      <View style={styles.flex}>
+        <Text style={styles.muted}>
+          {entry.date} · {entry.emotion.label}
+          {entry.thought ? ` · ${entry.thought}` : ''} · {entry.shared ? 'Shared' : 'Private'}
+        </Text>
+        <Text style={styles.itemTitle}>{entry.title}</Text>
+        <Text style={styles.muted} numberOfLines={2}>
           {entry.preview}
         </Text>
-        <View style={styles.entryFooter}>
-          <View style={styles.privacy}>
-            <LockIcon size={12} color={colors.textSecondary} />
-            <Text style={styles.privacyText}>{entry.shared ? 'Shared' : 'Private'}</Text>
-          </View>
-          <ChevronRightIcon size={16} color={colors.textSecondary} />
-        </View>
       </View>
+      <ChevronRightIcon size={18} color={colors.textSecondary} />
     </Pressable>
+  );
+}
+
+function Divider() {
+  return <View style={styles.divider} />;
+}
+
+// Faint neuron-like branches behind the header, purely decorative.
+function Branches() {
+  return (
+    <Svg width={240} height={260} viewBox="0 0 240 260" style={styles.branches} pointerEvents="none">
+      <Path
+        d="M240 20C200 40 170 60 150 100S120 170 80 190M150 100C170 120 200 125 230 120M150 100C140 70 150 40 175 15M80 190C60 200 40 220 30 250M80 190C95 210 100 230 98 255M118 152C100 140 80 140 55 150M190 60C205 70 220 70 238 64"
+        stroke={colors.petrol}
+        strokeOpacity={0.07}
+        strokeWidth={2}
+        strokeLinecap="round"
+        fill="none"
+      />
+    </Svg>
   );
 }
 
@@ -247,11 +328,52 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  // Sits behind the header and scrolls away with it.
+  branches: {
+    position: 'absolute',
+    top: 0,
+    right: -spacing.xl,
+  },
   content: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxl,
-    gap: spacing.xxl,
+    gap: spacing.xl,
+  },
+  flex: {
+    flex: 1,
+  },
+  block: {
+    gap: spacing.md,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.borderStrong,
+  },
+  vDivider: {
+    width: StyleSheet.hairlineWidth,
+    alignSelf: 'stretch',
+    backgroundColor: colors.borderStrong,
+  },
+  overline: {
+    ...type.overline,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+  },
+  sectionHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionTitle: {
+    ...type.heading,
+    fontSize: 22,
+    lineHeight: 28,
+    color: colors.textPrimary,
+  },
+  body: {
+    ...type.body,
+    color: colors.textPrimary,
   },
   muted: {
     ...type.caption,
@@ -259,246 +381,162 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: colors.textSecondary,
   },
-
-  // Greeting
-  greeting: {
+  itemTitle: {
+    ...type.button,
+    fontSize: 16,
+    color: colors.textPrimary,
+  },
+  link: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.xs,
+  },
+  linkText: {
+    ...type.label,
+    fontSize: 14,
+    color: colors.textPrimary,
+  },
+  actionText: {
+    ...type.label,
+    color: colors.textSecondary,
+  },
+
+  // Header
+  header: {
+    gap: spacing.sm,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
   },
   avatar: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: radius.pill,
-    backgroundColor: colors.paleGreen,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontFamily: fonts.semibold,
-    fontSize: 17,
-    color: colors.textPrimary,
-  },
-  greetingText: {
-    flex: 1,
-  },
-  hello: {
-    ...type.heading,
-    fontSize: 19,
-    color: colors.textPrimary,
+    fontSize: 20,
+    color: colors.pinkText,
   },
   crisis: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    height: 34,
-    paddingHorizontal: spacing.md,
+    gap: 6,
+    height: 40,
+    paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.pink,
-    backgroundColor: colors.pinkSoft,
+    borderWidth: 1.5,
+    borderColor: colors.pinkText,
   },
   crisisText: {
-    ...type.label,
-    color: colors.pinkText,
-  },
-
-  // Check-in
-  checkIn: {
-    gap: spacing.sm,
-    padding: spacing.xl,
-    borderRadius: radius.lg,
-    backgroundColor: colors.pink,
-  },
-  eyebrow: {
     ...type.overline,
+    fontSize: 12,
     textTransform: 'uppercase',
     color: colors.pinkText,
   },
-  checkInTitle: {
+  greeting: {
     ...type.title,
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 30,
+    lineHeight: 36,
     color: colors.textPrimary,
   },
-  checkInBody: {
-    ...type.body,
-    fontSize: 14,
-    color: colors.textSecondary,
+
+  // Mood scale
+  moodScale: {
+    gap: spacing.sm,
   },
   moods: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginTop: spacing.sm,
   },
   mood: {
     flex: 1,
-    minHeight: 64,
+    height: 48,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.surface,
   },
   moodLabel: {
     ...type.label,
-    color: colors.textPrimary,
-  },
-
-  // Sections
-  section: {
-    gap: spacing.md,
-  },
-  spaceRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  spaceCard: {
-    flex: 1,
-    gap: spacing.xs,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  spaceIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-  },
-  spaceTitle: {
-    ...type.button,
     fontSize: 15,
     color: colors.textPrimary,
   },
-  empty: {
-    gap: 2,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surfaceMuted,
+
+  // Your space
+  spaceRow: {
+    flexDirection: 'row',
+    gap: spacing.lg,
   },
-  emptyTitle: {
-    ...type.label,
-    fontSize: 14,
+  spaceItem: {
+    flex: 1,
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  ring: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Rows
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  rowDivider: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderStrong,
+  },
+  accent: {
+    width: 3,
+    alignSelf: 'stretch',
+    borderRadius: radius.pill,
+    backgroundColor: colors.petrol,
+  },
+  statusPill: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
+  },
+  statusText: {
+    fontFamily: fonts.medium,
+    fontSize: 12,
+    color: colors.textPrimary,
+  },
+  meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 2,
+  },
+  day: {
+    fontFamily: fonts.bold,
+    fontSize: 17,
     color: colors.textPrimary,
   },
 
   // Progress
-  progress: {
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.lavender,
-  },
-  progressTop: {
+  progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-  },
-  progressText: {
-    flex: 1,
-    gap: spacing.sm,
-    alignItems: 'flex-start',
-  },
-  progressTitle: {
-    ...type.heading,
-    fontSize: 18,
-    color: colors.textPrimary,
-  },
-  records: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-  },
-  recordsText: {
-    fontFamily: fonts.semibold,
-    fontSize: 12,
-    color: colors.lavenderStrong,
-  },
-  progressBody: {
-    ...type.body,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textPrimary,
-  },
-  progressLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  progressLinkText: {
-    ...type.label,
-    fontSize: 14,
-    color: colors.textPrimary,
-  },
-
-  // Entry
-  entry: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  date: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dateText: {
-    fontFamily: fonts.bold,
-    fontSize: 18,
-    color: colors.textPrimary,
-  },
-  entryBody: {
-    flex: 1,
-    gap: 4,
-  },
-  entryMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  entryTitle: {
-    ...type.button,
-    fontSize: 16,
-    color: colors.textPrimary,
-  },
-  entryPreview: {
-    ...type.body,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textSecondary,
-  },
-  entryFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.xs,
-  },
-  privacy: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    backgroundColor: colors.background,
-  },
-  privacyText: {
-    fontFamily: fonts.medium,
-    fontSize: 11,
-    color: colors.textSecondary,
   },
 });
