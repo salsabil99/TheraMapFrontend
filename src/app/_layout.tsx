@@ -9,6 +9,7 @@ import {
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { TasksProvider } from '../state/TasksContext';
 import { colors } from '../theme/tokens';
 
 export default function RootLayout() {
@@ -23,12 +24,12 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <>
+    <TasksProvider>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         {/* Safety sheet slides over whatever screen opened it. */}
         <Stack.Screen name="crisis" options={{ presentation: 'modal', contentStyle: { backgroundColor: colors.surface } }} />
       </Stack>
-    </>
+    </TasksProvider>
   );
 }

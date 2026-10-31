@@ -15,6 +15,7 @@ import {
   ClockIcon,
   CloudIcon,
   DotsIcon,
+  HeartIcon,
   LeafIcon,
   LockIcon,
   PhoneIcon,
@@ -22,11 +23,12 @@ import {
   SettingsIcon,
   SproutIcon,
   SunIcon,
-  ToolsIcon,
 } from '../../components/icons';
 import { Brain } from '../../components/illustrations/Brain';
 import { SectionHeader } from '../../components/SectionHeader';
-import { currentUser, homework, journalEntryCount, recentEntries, type Homework, type JournalEntry } from '../../data/mock';
+import { currentUser, journalEntryCount, recentEntries, type JournalEntry } from '../../data/mock';
+import type { Task } from '../../data/tasks';
+import { useTasks } from '../../state/TasksContext';
 import { comingSoon } from '../../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
@@ -47,6 +49,7 @@ export default function HomeScreen() {
   // Only one card is expanded at a time; the others keep their closed anatomy.
   const [openCard, setOpenCard] = useState<CardId | null>('emotion');
   const [emotion, setEmotion] = useState<string | null>(null);
+  const homework = useTasks().tasks.filter((t) => t.status !== 'done');
 
   const toggle = (id: CardId) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -132,7 +135,7 @@ export default function HomeScreen() {
             badge={homework.length > 0 ? `${homework.length} pending` : undefined}
           />
           {homework.length > 0 ? (
-            homework.map((hw) => <HomeworkCard key={hw.id} homework={hw} />)
+            homework.map((hw) => <HomeworkCard key={hw.id} task={hw} />)
           ) : (
             <EmptyCard text="No homework right now. Your therapist’s tasks will appear here." />
           )}
@@ -162,17 +165,17 @@ export default function HomeScreen() {
           />
           <Shortcut
             title="Tasks"
-            subtitle="View homework"
+            subtitle="From your therapist"
             tone={colors.lavender}
             icon={<ClipboardCheckIcon size={18} color={colors.lavenderStrong} />}
             href="/tasks"
           />
           <Shortcut
-            title="Tools"
-            subtitle="Helpful resources"
+            title="Check in"
+            subtitle="Log how you feel"
             tone={colors.skyBlue}
-            icon={<ToolsIcon size={18} color={colors.skyStrong} />}
-            href="/tools"
+            icon={<HeartIcon size={18} color={colors.skyStrong} />}
+            href="/log-emotion"
           />
           <Shortcut
             title="Settings"
@@ -223,7 +226,7 @@ function GlyphCircle({ icon }: { icon: ReactNode }) {
   return <View style={styles.glyphCircle}>{icon}</View>;
 }
 
-function HomeworkCard({ homework: hw }: { homework: Homework }) {
+function HomeworkCard({ task: hw }: { task: Task }) {
   return (
     <View style={styles.surfaceCard}>
       <View style={styles.hwTop}>
@@ -255,7 +258,11 @@ function HomeworkCard({ homework: hw }: { homework: Homework }) {
         ))}
       </Text>
 
-      <PrimaryButton title="Start task" compact onPress={() => comingSoon(hw.title)} />
+      <PrimaryButton
+        title={hw.status === 'in_progress' ? 'Continue task' : 'Start task'}
+        compact
+        onPress={() => router.push(`/task/${hw.id}`)}
+      />
     </View>
   );
 }
