@@ -102,10 +102,7 @@ export default function TodayScreen() {
           >
             <BrainMark size={BRAIN_MARK} />
           </View>
-          <View style={styles.eyebrowRow}>
-            <Text style={styles.eyebrow}>A moment for you</Text>
-            <View style={styles.eyebrowLine} />
-          </View>
+          <Text style={styles.eyebrow}>A moment for you</Text>
           <Text style={styles.checkInTitle} accessibilityRole="header">
             Check in with <Text style={styles.highlight}>yourself.</Text>
           </Text>
@@ -327,7 +324,6 @@ function HomeworkCard({ task, featured }: { task: Task; featured?: boolean }) {
   const when = featured ? task.due.replace(/^Today,\s*/, '') : task.due;
   return (
     <View style={[styles.homework, featured && styles.homeworkFeatured]}>
-      {featured && <View style={styles.featuredBar} />}
       <View style={[styles.iconCircle, styles.iconCircleSm, featured && { backgroundColor: colors.surface }]}>
         <Icon size={20} color={colors.petrol} />
       </View>
@@ -498,21 +494,11 @@ const styles = StyleSheet.create({
     top: BRAIN_INSET,
     right: BRAIN_INSET,
   },
-  eyebrowRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
   eyebrow: {
     ...type.overline,
     textTransform: 'uppercase',
     letterSpacing: 2,
     color: colors.textOnPetrolMuted,
-  },
-  eyebrowLine: {
-    width: 36,
-    height: 1,
-    backgroundColor: colors.textOnPetrolMuted,
   },
   // Right padding keeps the title clear of the brain mark; it wraps on narrow phones.
   checkInTitle: {
@@ -616,14 +602,6 @@ const styles = StyleSheet.create({
   homeworkFeatured: {
     backgroundColor: colors.tealSoft,
     borderColor: colors.tealSoft,
-  },
-  featuredBar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 4,
-    backgroundColor: colors.accent,
   },
   groupLabel: {
     ...type.overline,
