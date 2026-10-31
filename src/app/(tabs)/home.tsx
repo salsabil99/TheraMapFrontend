@@ -19,6 +19,7 @@ import {
   WaveIcon,
 } from '../../components/icons';
 import { Brain } from '../../components/illustrations/Brain';
+import { BrainMark } from '../../components/illustrations/BrainMark';
 import { SectionHeader } from '../../components/SectionHeader';
 import { currentUser, journalEntryCount, recentEntries, weeklySummary, type JournalEntry } from '../../data/mock';
 import type { Task } from '../../data/tasks';
@@ -54,6 +55,15 @@ export default function TodayScreen() {
         {/* Check-in */}
         <View style={styles.checkIn}>
           <Waves />
+          {/* Decorative: hidden from screen readers. */}
+          <View
+            style={styles.brainMark}
+            pointerEvents="none"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <BrainMark size={46} />
+          </View>
           <View style={styles.eyebrowRow}>
             <Text style={styles.eyebrow}>A moment for you</Text>
             <View style={styles.eyebrowLine} />
@@ -442,6 +452,12 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
   },
+  // Sits beside the eyebrow and title without adding height.
+  brainMark: {
+    position: 'absolute',
+    top: spacing.sm + 2,
+    right: spacing.md,
+  },
   eyebrowRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -458,10 +474,12 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.textOnPetrolMuted,
   },
+  // Right padding keeps the title clear of the brain mark; it wraps on narrow phones.
   checkInTitle: {
     ...type.title,
-    fontSize: 26,
-    lineHeight: 31,
+    fontSize: 24,
+    lineHeight: 30,
+    paddingRight: 44,
     color: colors.textOnPetrol,
   },
   checkInBody: {
