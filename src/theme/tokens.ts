@@ -10,17 +10,17 @@ export const colors = {
   borderStrong: '#BFCFD2',
 
   // Brand
-  petrol: '#12343B',
-  petrolPressed: '#0C262B',
+  petrol: '#103E49',
+  petrolPressed: '#0B2E36',
   petrolSoft: '#1E464E', // icon chip on petrol
-  petrolHalo: 'rgba(18, 52, 59, 0.10)', // soft ring around the active tab
+  petrolHalo: 'rgba(16, 62, 73, 0.10)', // soft ring around the active tab
   teal: '#62929E', // secondary teal: avatar, waves, icon tints
   accent: '#935165', // selected accents and notification badges
   accentSoft: '#F3E6EA',
   tealSoft: '#DCEBEC', // icon circles, quiet fills
 
   // Text
-  textPrimary: '#12343B',
+  textPrimary: '#103E49',
   textSecondary: '#5B7277',
   textMuted: '#8DA1A5',
   textOnPetrol: '#FFFFFF',
@@ -90,7 +90,7 @@ export const type = {
 
 export const shadow = {
   card: {
-    shadowColor: '#12343B',
+    shadowColor: '#103E49',
     shadowOpacity: 0.12,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },

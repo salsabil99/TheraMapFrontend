@@ -46,13 +46,15 @@ export default function JournalScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <BrandBar />
+        <View style={styles.header}>
+          <BrandBar />
 
-        <View style={styles.intro}>
+          <View style={styles.intro}>
           <Text style={styles.title} accessibilityRole="header">
             Mindmap
           </Text>
           <Text style={styles.subtitle}>The feelings and thoughts in your journal.</Text>
+          </View>
         </View>
 
         <View style={styles.periodRow}>
@@ -62,9 +64,9 @@ export default function JournalScreen() {
             accessibilityLabel={`Period: ${period}. Change`}
             style={({ pressed }) => [styles.period, pressed && { opacity: 0.8 }]}
           >
-            <CalendarIcon size={18} color={colors.petrol} />
+            <CalendarIcon size={16} color={colors.teal} strokeWidth={2} />
             <Text style={styles.periodText}>{period}</Text>
-            <ChevronDownIcon size={16} strokeWidth={2} />
+            <ChevronDownIcon size={14} color={colors.textSecondary} strokeWidth={2} />
           </Pressable>
           <Text style={styles.rangeText}>{range}</Text>
         </View>
@@ -75,25 +77,27 @@ export default function JournalScreen() {
             <Text style={styles.cardTitle} accessibilityRole="header">
               Weekly brain summary
             </Text>
-            <Text style={styles.rangeText}>{records} records</Text>
+            <View style={styles.countChip}>
+              <Text style={styles.countChipText}>{records} records</Text>
+            </View>
           </View>
           <View style={styles.columns}>
             <View style={styles.column}>
               <View style={[styles.columnIcon, { backgroundColor: colors.lavenderSoft }]}>
-                <BrainIcon size={20} color={colors.lavenderStrong} />
+                <BrainIcon size={18} color={colors.lavenderStrong} />
               </View>
               <View style={styles.columnText}>
                 <Text style={styles.columnLabel}>Thoughts</Text>
-                <Text style={styles.columnHint}>Patterns in your thinking</Text>
+                <Text style={styles.columnHint}>Thinking patterns</Text>
               </View>
             </View>
             <View style={styles.column}>
               <View style={[styles.columnIcon, { backgroundColor: colors.skySoft }]}>
-                <HeartIcon size={20} color={colors.skyStrong} />
+                <HeartIcon size={18} color={colors.skyStrong} />
               </View>
               <View style={styles.columnText}>
                 <Text style={styles.columnLabel}>Emotions</Text>
-                <Text style={styles.columnHint}>How you’ve been feeling</Text>
+                <Text style={styles.columnHint}>How you’ve felt</Text>
               </View>
             </View>
           </View>
@@ -232,17 +236,24 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.xl,
   },
+  header: {
+    gap: spacing.xxl,
+    marginBottom: spacing.xs,
+  },
   intro: {
-    gap: spacing.xs,
+    gap: 6,
   },
   title: {
-    ...type.title,
-    fontSize: 30,
-    lineHeight: 36,
+    fontFamily: fonts.bold,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.6,
     color: colors.textPrimary,
   },
   subtitle: {
-    ...type.body,
+    fontFamily: fonts.regular,
+    fontSize: 15,
+    lineHeight: 22,
     color: colors.textSecondary,
   },
   muted: {
@@ -256,32 +267,47 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: -spacing.xs, // 16px to the card: the selector belongs to it
   },
   period: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    height: 44,
-    paddingHorizontal: spacing.lg,
+    height: 40,
+    paddingLeft: 14,
+    paddingRight: spacing.md,
     borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderStrong,
     backgroundColor: colors.surface,
-    ...shadow.card,
-    shadowOpacity: 0.06,
-    elevation: 2,
   },
   periodText: {
-    ...type.label,
-    fontSize: 15,
-    marginRight: 2,
+    fontFamily: fonts.semibold,
+    fontSize: 14,
+    lineHeight: 18,
     color: colors.textPrimary,
   },
   rangeText: {
     fontFamily: fonts.medium,
-    fontSize: 14,
+    fontSize: 13,
+    lineHeight: 18,
     color: colors.textSecondary,
   },
+  countChip: {
+    height: 24,
+    paddingHorizontal: 10,
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    backgroundColor: colors.tealSoft,
+  },
+  countChipText: {
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.petrol,
+  },
   mapCard: {
-    paddingHorizontal: MAP_CARD_PADDING - 4,
+    paddingHorizontal: MAP_CARD_PADDING,
     paddingTop: MAP_CARD_PADDING,
     paddingBottom: spacing.md,
     borderRadius: radius.lg,
@@ -304,15 +330,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cardTitle: {
-    ...type.title,
-    fontSize: 20,
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    lineHeight: 24,
+    letterSpacing: -0.3,
     color: colors.textPrimary,
-    paddingHorizontal: 4,
   },
   columns: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: spacing.md,
     marginTop: spacing.lg,
+    paddingTop: spacing.lg,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
   column: {
     flex: 1,
@@ -321,8 +351,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   columnIcon: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
@@ -332,19 +362,21 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   columnLabel: {
-    fontFamily: fonts.bold,
-    fontSize: 15,
+    fontFamily: fonts.semibold,
+    fontSize: 14,
+    lineHeight: 18,
     color: colors.textPrimary,
   },
   columnHint: {
     fontFamily: fonts.regular,
     fontSize: 12,
-    lineHeight: 15,
+    lineHeight: 16,
     color: colors.textSecondary,
   },
   map: {
     alignItems: 'center',
     marginTop: spacing.lg,
+    marginHorizontal: -spacing.xs,
   },
 
   insight: {
