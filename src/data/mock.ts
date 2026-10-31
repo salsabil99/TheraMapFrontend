@@ -12,6 +12,8 @@ export type JournalEntry = {
 
 export const currentUser = {
   name: 'Sarah',
+  email: 'sarah.m@example.com',
+  therapist: { name: 'Dr. Elena Vance (LCSW)', since: 'Connected since Sep 2026' },
 };
 
 export const recentEntries: JournalEntry[] = [

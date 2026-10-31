@@ -480,3 +480,23 @@ export function VerifiedIcon({ size = 16, color = colors.greenText }: IconProps)
     </Svg>
   );
 }
+
+export function BellIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z" {...stroke} />
+      <Path d="M10 20.5a2 2 0 0 0 4 0" {...stroke} />
+    </Svg>
+  );
+}
+
+export function LogOutIcon(props: IconProps) {
+  const { svg, stroke } = base(props);
+  return (
+    <Svg {...svg}>
+      <Path d="M14 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H14" {...stroke} />
+      <Path d="M10 12h10M16.5 8.5 20 12l-3.5 3.5" {...stroke} />
+    </Svg>
+  );
+}
