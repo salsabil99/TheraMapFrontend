@@ -26,7 +26,6 @@ import {
 } from '../components/icons';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { TextField } from '../components/TextField';
-import { comingSoon } from '../lib/comingSoon';
 import { colors, spacing, type } from '../theme/tokens';
 
 type Role = 'client' | 'provider';
@@ -49,11 +48,15 @@ export default function SignInScreen() {
     setErrors(next);
     if (next.email || next.password) return;
 
+    completeSignIn();
+  };
+
+  // TODO: replace with the real auth call (email or Apple/Google).
+  // Clients enter the app; the provider portal isn't designed yet.
+  const completeSignIn = () => {
     setLoading(true);
-    // TODO: replace with the real auth call.
     setTimeout(() => {
       setLoading(false);
-      // TODO: real auth. Clients enter the app; the provider portal isn't designed yet.
       if (role === 'client') router.replace('/home');
       else setProviderNotice(true);
     }, 800);
@@ -116,7 +119,7 @@ export default function SignInScreen() {
               }}
               error={errors.password}
               icon={(c) => <LockIcon size={18} color={c} />}
-              labelAction={{ title: 'Forgot Password?', onPress: () => comingSoon('Forgot password') }}
+              labelAction={{ title: 'Forgot Password?', onPress: () => router.push({ pathname: '/forgot-password', params: { email: email.trim() } }) }}
               secure
               autoComplete="password"
               textContentType="password"
@@ -144,8 +147,8 @@ export default function SignInScreen() {
           </View>
 
           <View style={styles.socialRow}>
-            <SecondaryButton title="Apple" icon={<AppleIcon size={16} />} onPress={() => comingSoon('Sign in with Apple')} />
-            <SecondaryButton title="Google" icon={<GoogleIcon size={16} />} onPress={() => comingSoon('Sign in with Google')} />
+            <SecondaryButton title="Apple" icon={<AppleIcon size={16} />} onPress={completeSignIn} />
+            <SecondaryButton title="Google" icon={<GoogleIcon size={16} />} onPress={completeSignIn} />
           </View>
 
           <View style={styles.signupRow}>
