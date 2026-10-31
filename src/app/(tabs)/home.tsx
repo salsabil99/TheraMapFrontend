@@ -35,11 +35,44 @@ const BRAIN_GAP = 14; // breathing room between the mark and the headline
 
 // One-tap moods. `logId` is the option pre-selected in the Emotion Logger.
 // Nothing is shown as selected here: a mood is only recorded after the user chooses it.
-const MOODS: { label: string; logId: string; icon: (color: string) => ReactNode }[] = [
-  { label: 'Low', logId: 'Sad', icon: (c) => <CloudIcon size={MOOD_ICON} color={c} /> },
-  { label: 'Okay', logId: 'Neutral', icon: (c) => <SproutIcon size={MOOD_ICON} color={c} /> },
-  { label: 'Good', logId: 'Content', icon: (c) => <SunIcon size={MOOD_ICON} color={c} /> },
-  { label: 'Great', logId: 'Hopeful', icon: (c) => <SparkleIcon size={MOOD_ICON} color={c} /> },
+// Each mood has a soft tint and a stronger icon circle, echoing the Emotion Logger.
+type Mood = {
+  label: string;
+  logId: string;
+  tint: string;
+  circle: string;
+  icon: (color: string) => ReactNode;
+};
+
+const MOODS: Mood[] = [
+  {
+    label: 'Low',
+    logId: 'Sad',
+    tint: colors.skySoft,
+    circle: colors.skyBlue,
+    icon: (c) => <CloudIcon size={MOOD_ICON} color={c} />,
+  },
+  {
+    label: 'Okay',
+    logId: 'Neutral',
+    tint: colors.greenSoft,
+    circle: colors.paleGreen,
+    icon: (c) => <SproutIcon size={MOOD_ICON} color={c} />,
+  },
+  {
+    label: 'Good',
+    logId: 'Content',
+    tint: colors.amberSoft,
+    circle: colors.amberLight,
+    icon: (c) => <SunIcon size={MOOD_ICON} color={c} />,
+  },
+  {
+    label: 'Great',
+    logId: 'Hopeful',
+    tint: colors.lavenderSoft,
+    circle: colors.lavender,
+    icon: (c) => <SparkleIcon size={MOOD_ICON} color={c} />,
+  },
 ];
 
 const DUE_ORDER = { today: 0, tomorrow: 1, later: 2 } as const;
@@ -74,7 +107,7 @@ export default function TodayScreen() {
             <View style={styles.eyebrowLine} />
           </View>
           <Text style={styles.checkInTitle} accessibilityRole="header">
-            Check in with yourself.
+            Check in with <Text style={styles.highlight}>yourself.</Text>
           </Text>
           <Text style={styles.checkInBody}>There’s no right or wrong way to feel.</Text>
           <View style={styles.moods}>
@@ -85,11 +118,13 @@ export default function TodayScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`I feel ${m.label.toLowerCase()}`}
                 accessibilityHint="Opens the emotion logger"
-                style={({ pressed }) => [styles.mood, pressed && styles.moodPressed]}
+                style={({ pressed }) => [styles.mood, { backgroundColor: m.tint }, pressed && styles.moodPressed]}
               >
                 {({ pressed }) => (
                   <>
-                    {m.icon(pressed ? colors.textOnPetrol : colors.petrol)}
+                    <View style={[styles.moodCircle, { backgroundColor: m.circle }]}>
+                      {m.icon(colors.petrol)}
+                    </View>
                     <Text style={[styles.moodLabel, pressed && { color: colors.textOnPetrol }]}>{m.label}</Text>
                   </>
                 )}
@@ -500,7 +535,7 @@ const styles = StyleSheet.create({
   },
   mood: {
     flex: 1,
-    height: 64,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
@@ -513,6 +548,16 @@ const styles = StyleSheet.create({
   moodPressed: {
     backgroundColor: colors.petrolSoft,
     borderColor: colors.accent,
+  },
+  moodCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  highlight: {
+    color: colors.tealLight,
   },
   moodLabel: {
     ...type.label,
