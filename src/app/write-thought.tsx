@@ -16,7 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/Button';
 import { LightbulbIcon, LockIcon } from '../components/icons';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { comingSoon } from '../lib/comingSoon';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 
 const STEPS = ['Situation & thought', 'Emotions', 'Evidence', 'Reframe'] as const;
@@ -33,8 +32,7 @@ export default function WriteThoughtScreen() {
   };
 
   const handleContinue = () => {
-    // TODO: route to step 2 once the Emotions screen exists.
-    comingSoon(STEPS[CURRENT_STEP + 1]);
+    router.push('/choose-emotion');
   };
 
   return (

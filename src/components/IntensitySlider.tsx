@@ -19,11 +19,13 @@ type Props = {
   value: number;
   onChange: (value: number) => void;
   accessibilityLabel: string;
+  // 'gradient' runs calm-to-intense; 'fill' is a solid petrol fill up to the thumb.
+  variant?: 'gradient' | 'fill';
 };
 
 // 1–10 slider on a calm-to-intense gradient. Drag or tap the track; screen
 // readers adjust it with increment/decrement.
-export function IntensitySlider({ value, onChange, accessibilityLabel }: Props) {
+export function IntensitySlider({ value, onChange, accessibilityLabel, variant = 'gradient' }: Props) {
   const [width, setWidth] = useState(0);
 
   // Rebuilt when the width changes; the drag's start point lives in the closure.
@@ -61,6 +63,11 @@ export function IntensitySlider({ value, onChange, accessibilityLabel }: Props) 
       }}
       {...responder.panHandlers}
     >
+      {variant === 'fill' ? (
+        <View style={[styles.track, styles.trackMuted]} pointerEvents="none">
+          <View style={[styles.trackFill, { width: Math.max(thumbLeft + THUMB / 2, 0) }]} />
+        </View>
+      ) : (
       <View style={styles.track} pointerEvents="none">
         <Svg width="100%" height={TRACK_HEIGHT}>
           <Defs>
@@ -73,6 +80,7 @@ export function IntensitySlider({ value, onChange, accessibilityLabel }: Props) 
           <Rect width="100%" height={TRACK_HEIGHT} rx={TRACK_HEIGHT / 2} fill="url(#intensity)" />
         </Svg>
       </View>
+      )}
       {width > 0 && <View style={[styles.thumb, { left: thumbLeft }]} pointerEvents="none" />}
     </View>
   );
@@ -85,6 +93,16 @@ const styles = StyleSheet.create({
   },
   track: {
     height: TRACK_HEIGHT,
+  },
+  trackMuted: {
+    borderRadius: TRACK_HEIGHT / 2,
+    backgroundColor: colors.surfaceMuted,
+    overflow: 'hidden',
+  },
+  trackFill: {
+    height: TRACK_HEIGHT,
+    borderRadius: TRACK_HEIGHT / 2,
+    backgroundColor: colors.petrol,
   },
   thumb: {
     position: 'absolute',
