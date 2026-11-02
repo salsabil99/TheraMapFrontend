@@ -88,7 +88,7 @@ export default function TodayScreen() {
               title="Write a thought"
               subtitle="Capture what’s on your mind"
               icon={<SproutIcon size={22} color={colors.petrol} />}
-              onPress={() => comingSoon('Write a thought')}
+              onPress={() => router.push('/write-thought')}
             />
             <SpaceCard
               title="CBT thought record"

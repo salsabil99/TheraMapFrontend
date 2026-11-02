@@ -12,9 +12,11 @@ type Props = {
   // Shown as a pill on the right, e.g. "Step 1 of 2".
   badge?: string;
   badgeIcon?: ReactNode;
+  // Text action on the right, e.g. "Save draft". Takes the badge's place.
+  action?: { title: string; onPress: () => void };
 };
 
-export function ScreenHeader({ onBack, title = 'theramap', badge, badgeIcon }: Props) {
+export function ScreenHeader({ onBack, title = 'theramap', badge, badgeIcon, action }: Props) {
   const handleBack = onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/sign-in')));
 
   return (
@@ -34,7 +36,11 @@ export function ScreenHeader({ onBack, title = 'theramap', badge, badgeIcon }: P
       </Text>
 
       <View style={styles.side}>
-        {!!badge && (
+        {action ? (
+          <Pressable onPress={action.onPress} hitSlop={8} accessibilityRole="button">
+            {({ pressed }) => <Text style={[styles.action, pressed && { opacity: 0.6 }]}>{action.title}</Text>}
+          </Pressable>
+        ) : !!badge && (
           <View style={styles.badge}>
             {badgeIcon}
             <Text style={styles.badgeText}>{badge}</Text>
@@ -83,6 +89,11 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
+  },
+  action: {
+    ...type.label,
+    fontSize: 14,
+    color: colors.petrol,
   },
   badgeText: {
     ...type.caption,
